@@ -1,0 +1,37 @@
+# Integración continua de RAGuitoBot (P8 · II.4.7)
+# En cada push o pull request: Ruff, reconstrucción reproducible de academico.db (semilla 42) y pytest.
+# No llama a ninguna API de LLM, así que no necesita claves (RNF-10).
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  calidad-y-pruebas:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - name: Instalar dependencias
+        run: pip install -r requirements-ci.txt
+
+      # Código nuevo del proyecto: debe pasar sin hallazgos
+      - name: Análisis estático bloqueante (APP y tests)
+        run: ruff check APP tests --output-format=github
+
+      # Scripts de la tesis: se reportan sin bloquear, para no alterar el código que generó los resultados
+      - name: Análisis estático informativo (scripts de la tesis)
+        run: ruff check AGENTE DB TESTBED CHROMADB2 --statistics --exit-zero
+
+      - name: Reconstruir la base académica (semilla 42)
+        working-directory: DB
+        run: python build_db.py --une une_matriculados.csv --realinho realinho.csv --malla malla_ei.csv --out academico.db
+
+      - name: Pruebas (pytest)
+        run: pytest -v

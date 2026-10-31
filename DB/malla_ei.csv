@@ -1,0 +1,83 @@
+codigo,nombre,ciclo,creditos,ht,hp,requisito_texto,requisito_codigo,electivo,grupo
+ACFB0101,Lenguaje y Comunicación I,1,3.0,2,2,,,False,
+ACFB0102,Inglés I,1,2.0,1,2,,,False,
+ACFB0103,Biología,1,2.0,1,2,,,False,
+ACFB0104,Matemática Básica I,1,3.0,2,2,,,False,
+ACFB0105,Metodología del Trabajo Universitario,1,2.0,1,2,,,False,
+ACFB0106,Sociedad y Cultura,1,2.0,1,2,,,False,
+ACFB0107,Actividad Física y Deporte I,1,2.0,1,2,,,False,
+ACFP0108,Informática Educativa,1,2.0,0,4,,,False,
+TEEI0109,Cálculo I,1,4.0,2,4,,,False,
+ACFB0210,Lenguaje y Comunicación II,2,3.0,2,2,Lenguaje y Comunicación I,ACFB0101,False,
+ACFB0211,Inglés II,2,2.0,1,2,Inglés I,ACFB0102,False,
+ACFB0213,Matemática Básica II,2,3.0,2,2,Matemática Básica I,ACFB0104,False,
+ACFB0214,Geografía General,2,2.0,1,2,,,False,
+ACFB0215,Introducción a la Filosofía,2,2.0,1,2,,,False,
+ACFB0216,Educación Alimentaria,2,2.0,1,2,,,False,
+ACFP0217,Actividad Artística I,2,2.0,1,2,,,False,
+ACRS0212,Ecología y Ambiente,2,2.0,1,2,,,False,
+TEEI0218,Cálculo II,2,4.0,2,4,Cálculo I,TEEI0109,False,
+ACFB0319,Lenguaje y Comunicación III,3,2.0,1,2,Lenguaje y Comunicación II,ACFB0210,False,
+ACFC0321,Realidad Regional y Nacional,3,2.0,1,2,,,False,
+ACFP0322,Pedagogía General,3,3.0,2,2,,,False,
+ACRS0320,"Ética, Constitución y Derechos Humanos",3,2.0,1,2,,,False,
+TEEI0323,Análisis de Circuitos Eléctricos,3,5.0,3,4,Calculo I,TEEI0109,False,
+TEEI0324,Dispositivos Electrónicos,3,4.0,2,4,,,False,
+TEEI0325,Programación,3,4.0,2,4,,,False,
+ACFB0426,Actividad Productiva,4,2.0,1,2,,,False,
+ACFC0427,Proceso Histórico del Perú y del Mundo,4,2.0,1,2,,,False,
+ACFP0428,Psicología General,4,2.0,1,2,,,False,
+ACFP0429,Historia y Filosofía de la Educación,4,2.0,1,2,,,False,
+ACFP0430,Didáctica General,4,3.0,2,2,,,False,
+TEEI0431,Circuitos Electrónicos I,4,4.0,2,4,Análisis de Circuitos Eléctricos,TEEI0323,False,
+TEEI0432,Sistemas Digitales I,4,4.0,2,4,,,False,
+TEEI0433,Máquinas e Instalaciones Eléctricas en autos,4,4.0,2,4,Análisis de Circuitos Eléctricos,TEEI0323,False,
+ACEP0535,PPP Observación y Planeamiento,5,2.0,1,2,,,False,
+ACFI0534,Estadística Aplicada a la Investigación,5,3.0,2,2,,,False,
+ACFP0536,Psicología del Aprendizaje,5,3.0,2,2,,,False,
+ACFP0537,Planificación y Programación Curricular,5,2.0,1,2,,,False,
+AEG0541A,Inglés III,5,2.0,1,2,Inglés II,ACFB0211,True,E0541
+AEG0541B,Quechua I,5,2.0,1,2,,,True,E0541
+AEG0541C,Actividad Física y Deporte II,5,2.0,1,2,Actividad Física y Deporte I,ACFB0107,True,E0541
+AEG0541D,Taller de Redacción Científica,5,2.0,1,2,,,True,E0541
+AEG0541E,Prevención de Riesgos y Desastres,5,2.0,1,2,,,True,E0541
+TEEI0538,Circuitos Electrónicos II,5,4.0,2,4,Circuitos Electrónicos I,TEEI0431,False,
+TEEI0539,Sistemas Digitales II,5,4.0,2,4,Sistemas Digitales I,TEEI0432,False,
+TEEI0540,Sistemas Operativos,5,3.0,2,2,,,False,
+ACEP0643,PPP Discontinua,6,2.0,1,2,,,False,
+ACFI0642,Seminario de Tesis,6,3.0,2,2,,,False,
+ACFP0644,Neurociencia y Educación,6,2.0,1,2,,,False,
+ACFP0645,Evaluación del Aprendizaje,6,2.0,1,2,,,False,
+AFG0649A,Inglés IV,6,2.0,1,2,Inglés III,AEG0541A,True,E0649
+AFG0649B,Quechua II,6,2.0,1,2,Quechua I,AEG0541B,True,E0649
+AFP0649C,Acción Tutorial,6,2.0,1,2,,,True,E0649
+AFP0649D,Actividad Artística II,6,2.0,1,2,Actividad Artística I,ACFP0217,True,E0649
+AFP0649E,Taller de TICS para la Investigación,6,2.0,1,2,,,True,E0649
+TEEI0646,Circuitos Electrónicos III,6,4.0,2,4,Circuitos Electrónicos II,TEEI0538,False,
+TEEI0647,Sistemas de Telecomunicaciones,6,5.0,3,4,,,False,
+TEEI0648,Didáctica de la Especialidad,6,3.0,1,4,,,False,
+ACEP0751,PPP Continua,7,3.0,1,4,PPP Discontinua,ACEP0643,False,
+ACFI0750,Taller de Tesis I,7,3.0,1,4,Seminario de Tesis,ACFI0642,False,
+ACFP0752,Desarrollo del Pensamiento Científico y Tecnológico,7,2.0,1,2,,,False,
+TEEI0753,Sistemas de Control Automático,7,4.0,2,4,,,False,
+TEEI0754,Electrónica de Potencia I,7,4.0,2,4,Circuitos Electrónicos III,TEEI0646,False,
+TEEI0755,Sistemas de Comunicación Digital,7,4.0,2,4,,,False,
+TEI0756A,Instrumentación Electrónica,7,2.0,1,2,,,True,E0756
+TEI0756B,Sensores y Actuadores,7,2.0,1,2,,,True,E0756
+TEI0756C,Sistemas de Comunicación Óptica,7,2.0,1,2,,,True,E0756
+ACEP0858,PPP Intensiva,8,4.0,1,6,PPP. Continua,ACEP0751,False,
+ACFI0857,Taller de Tesis II,8,3.0,1,4,Taller de Tesis I,ACFI0750,False,
+TEEI0859,Electrónica de Potencia II,8,5.0,3,4,Electrónica de Potencia I,TEEI0754,False,
+TEEI0860,Robótica,8,5.0,3,4,Sistemas de Control Automático,TEEI0753,False,
+TEEI0861,Programación Orientada a Objetos,8,5.0,3,4,,,False,
+ACEP0963,PPP Administrativa,9,3.0,1,4,,,False,
+ACFP0962,Gestión Educativa y Liderazgo,9,2.0,1,2,,,False,
+TEEI0964,Formulación y Evaluación de Proyectos,9,4.0,2,4,,,False,
+TEEI0965,Sistemas Electrónicos de Redes Industriales,9,5.0,3,4,,,False,
+TEEI0966,Desarrollo de Software,9,5.0,3,4,,,False,
+TEI0967A,Procesamiento Digital de Señales,9,2.0,1,2,,,True,E0967
+TEI0967B,Aulas Virtuales y TICS,9,2.0,1,2,,,True,E0967
+TEI0967C,Domótica e Internet de las cosas,9,2.0,1,2,,,True,E0967
+ACEP1068,PPP en la Comunidad,10,5.0,1,8,,,False,
+TEEI1069,Auditoría y Seguridad Informática,10,4.0,2,4,,,False,
+TEEI1070,Redes y Transmisión de Datos,10,5.0,3,4,,,False,

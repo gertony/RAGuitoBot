@@ -83,12 +83,7 @@ Salida:   estadistica_ragas.csv  + impresión en pantalla
 
 Uso (desde RAGASTESIS/EVALUACION):  python estadistica.py
 """
-import sys
 from pathlib import Path
-
-import numpy as np
-import pandas as pd
-from scipy import stats
 
 CARPETA = Path(__file__).resolve().parent
 METRICAS = ["faithfulness", "answer_relevancy", "context_precision", "context_recall"]

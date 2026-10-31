@@ -16,7 +16,6 @@ import argparse
 import csv
 import json
 import random
-
 from pathlib import Path
 
 from consultas import DB_POR_DEFECTO, Academico, _f

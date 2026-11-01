@@ -1,0 +1,23 @@
+# Entorno y editor
+.venv/
+venv/
+.idea/
+__pycache__/
+*.pyc
+
+# Claves (RNF-10) y contraseñas generadas: nunca se suben
+.env
+APP/credenciales.csv
+
+# Datos regenerables (build_db.py e indexar_normativa.py) y salidas de ejecución
+*.db
+*.log
+CHROMADB2/chroma_e5/
+CHROMADB2/chroma_normativa/
+
+# Copia antigua de la etapa de experimentación
+CHROMADM/
+
+# Cachés de herramientas
+.pytest_cache/
+.ruff_cache/

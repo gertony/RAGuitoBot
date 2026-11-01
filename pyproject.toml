@@ -1,0 +1,36 @@
+# Configuración de Ruff para RAGuitoBot (P8 · II.4.2 y II.4.7)
+[tool.ruff]
+target-version = "py313"
+line-length = 120
+extend-exclude = ["CHROMADB2/chroma_e5", "CHROMADB2/chroma_normativa", "CHROMADM", ".venv", ".idea"]
+
+[tool.ruff.lint]
+select = [
+  "E", "W",   # pycodestyle (PEP 8)
+  "F",        # Pyflakes: variables sin usar, imports rotos
+  "I",        # orden de imports
+  "N",        # pep8-naming: snake_case / PascalCase / MAYÚSCULAS
+  "B",        # flake8-bugbear: errores probables
+  "S",        # flake8-bandit: seguridad (S608 SQL armado con texto, S105 claves en código)
+  "C90",      # McCabe: complejidad ciclomática
+  "UP",       # sintaxis moderna de Python
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["auth", "servicios", "agente", "consultas", "indexar_normativa", "build_db"]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S101"]   # assert es lo normal en pytest
+# Falsos positivos revisados (II.4.7):
+# - S311: random con semilla 42 se usa para SIMULAR datos reproducibles, no para criptografía.
+# - S608: las consultas armadas con f-string usan nombres de tabla fijos o solo marcadores "?".
+# - S324: md5 solo reparte palabras en EmbeddingPrueba (prueba sin modelo), no protege datos.
+"DB/build_db.py" = ["S311", "S608"]
+"TESTBED/generar_testbed.py" = ["S311"]
+"CHROMADB2/indexar_normativa.py" = ["S324"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

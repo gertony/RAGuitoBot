@@ -1,0 +1,5 @@
+[client]
+toolbarMode = "minimal"   # oculta el botón Deploy y el menú de desarrollador
+
+[theme]
+primaryColor = "#1F4E79"

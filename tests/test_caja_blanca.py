@@ -6,7 +6,7 @@ LLM se reemplaza por un modelo falso de LangChain (FakeListLLM) y el buscador de
 
 Casos: CB-01 promedio ponderado · CB-02 puede_llevar · CB-03 router por reglas · CB-04 búsqueda de cursos ·
 CB-05 desempate del LLM y sesión · CB-06 registro de la consulta (RF-12) y aislamiento (RF-17) ·
-CB-07 sesiones concurrentes (regresión del defecto D-02).
+CB-07 sesiones concurrentes (regresión del defecto D-02) · CB-08 limitador de solicitudes (D-06).
 """
 import sqlite3
 import time
@@ -15,6 +15,7 @@ from contextlib import closing
 
 import pytest
 from langchain_core.language_models.fake import FakeListLLM
+from langchain_core.language_models.fake_chat_models import FakeListChatModel
 
 from build_db import ESQUEMA
 
@@ -198,3 +199,23 @@ def test_cb07_sesiones_concurrentes_no_se_mezclan(ruta_db):
         filas = con.execute("SELECT estudiante_id, contextos FROM log_consultas").fetchall()
     assert len(filas) == 16
     assert all(eid in ctx for eid, ctx in filas)
+
+
+# ---------------------------------------------------------------- CB-08 limitador de solicitudes al LLM (D-06)
+def test_cb08_limitador_espacia_las_solicitudes(ruta_db, monkeypatch):
+    # Con LLM_RPM, las consultas concurrentes esperan su turno en vez de llegar todas juntas al proveedor.
+    # 600 solicitudes/min = 10 por segundo: 12 consultas en 6 hilos no pueden durar menos de ~1.1 s.
+    from agente import Agente, _limitador
+    monkeypatch.setenv("LLM_RPM", "600")
+    llm = FakeListChatModel(responses=["Respuesta de prueba."], rate_limiter=_limitador())
+    a = Agente(db=ruta_db, llm=llm, buscador=BuscadorFalso(), registrar=False)
+    t0 = time.perf_counter()
+    with ThreadPoolExecutor(max_workers=6) as ex:
+        list(ex.map(lambda eid: a.responder(eid, "¿Cuál es mi promedio ponderado?"), ["EST0001", "EST0003"] * 6))
+    assert time.perf_counter() - t0 >= 11 / 10 * 0.9
+
+
+def test_cb08_sin_limite_por_defecto(monkeypatch):
+    from agente import _limitador
+    monkeypatch.delenv("LLM_RPM", raising=False)
+    assert _limitador() is None

@@ -1,0 +1,41 @@
+usuario,par,tipo,inicio,latencia_ms,error,contexto_propio
+2,P09,personal,2026-11-03T23:14:36,681.4,,True
+1,P08,personal,2026-11-03T23:14:36,989.9,,True
+3,P03,personal,2026-11-03T23:14:36,1108.2,,True
+8,N03,normativa,2026-11-03T23:14:36,1499.1,,True
+4,M03,mixta,2026-11-03T23:14:36,1673.2,,True
+5,P15,personal,2026-11-03T23:14:36,2026.4,,True
+6,N08,normativa,2026-11-03T23:14:36,2097.1,,True
+7,N02,normativa,2026-11-03T23:14:36,13222.9,RateLimitError: Error code: 429 - {'error': {'message': 'Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m60ty,
+2,P07,personal,2026-11-03T23:14:39,583.1,,True
+3,P02,personal,2026-11-03T23:14:39,589.2,,True
+8,P17,personal,2026-11-03T23:14:40,682.3,,True
+6,N02,normativa,2026-11-03T23:14:41,1162.1,,True
+4,P02,personal,2026-11-03T23:14:42,640.1,,True
+1,P02,personal,2026-11-03T23:14:42,691.6,,True
+2,M05,mixta,2026-11-03T23:14:42,750.0,,True
+3,P06,personal,2026-11-03T23:14:42,3521.7,RateLimitError: Error code: 429 - {'error': {'message': 'Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m60ty,
+5,N09,normativa,2026-11-03T23:14:43,14514.9,RateLimitError: Error code: 429 - {'error': {'message': 'Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m60ty,
+8,P03,personal,2026-11-03T23:14:45,566.4,,True
+4,P13,personal,2026-11-03T23:14:47,1023.5,,True
+6,P18,personal,2026-11-03T23:14:47,3437.9,RateLimitError: Error code: 429 - {'error': {'message': 'Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m60ty,
+1,P18,personal,2026-11-03T23:14:47,4898.9,,True
+2,P06,personal,2026-11-03T23:14:48,4408.1,RateLimitError: Error code: 429 - {'error': {'message': 'Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m60ty,
+3,P14,personal,2026-11-03T23:14:49,5494.4,RateLimitError: Error code: 429 - {'error': {'message': 'Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m60ty,
+8,N10,normativa,2026-11-03T23:14:49,10482.8,RateLimitError: Error code: 429 - {'error': {'message': 'Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m60ty,
+7,P07,personal,2026-11-03T23:14:52,4810.1,,True
+4,M05,mixta,2026-11-03T23:14:52,7518.2,RateLimitError: Error code: 429 - {'error': {'message': 'Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m60ty,
+6,P10,personal,2026-11-03T23:14:54,6458.8,RateLimitError: Error code: 429 - {'error': {'message': 'Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m60ty,
+1,P16,personal,2026-11-03T23:14:56,7724.7,RateLimitError: Error code: 429 - {'error': {'message': 'Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m60ty,
+2,N08,normativa,2026-11-03T23:14:56,15419.4,RateLimitError: Error code: 429 - {'error': {'message': 'Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m60ty,
+3,P15,personal,2026-11-03T23:14:59,729.0,,True
+7,P06,personal,2026-11-03T23:14:59,4886.2,,True
+5,P18,personal,2026-11-03T23:15:01,677.8,,True
+6,P14,personal,2026-11-03T23:15:03,3807.5,,True
+8,M05,mixta,2026-11-03T23:15:03,10496.8,RateLimitError: Error code: 429 - {'error': {'message': 'Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m60ty,
+4,N07,normativa,2026-11-03T23:15:03,15425.2,RateLimitError: Error code: 429 - {'error': {'message': 'Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m60ty,
+1,P15,personal,2026-11-03T23:15:06,8073.7,,True
+5,P01,personal,2026-11-03T23:15:07,2801.9,,True
+7,N05,normativa,2026-11-03T23:15:08,8555.4,RateLimitError: Error code: 429 - {'error': {'message': 'Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m60ty,
+5,P11,personal,2026-11-03T23:15:14,4990.3,,True
+7,N03,normativa,2026-11-03T23:15:19,4701.7,,True

@@ -152,6 +152,19 @@ class BuscadorNormativa:
         return [doc for doc in r["documents"][0]]
 
 
+def _limitador():
+    """Limitador de solicitudes al LLM (D-06, P9): LLM_RPM = solicitudes por minuto permitidas.
+
+    Sin LLM_RPM no se limita nada (comportamiento de la tesis). Con varias sesiones a la vez, el
+    limitador hace esperar las consultas en vez de que el proveedor las rechace con el error 429.
+    """
+    rpm = float(os.environ.get("LLM_RPM", "0"))
+    if rpm <= 0:
+        return None
+    from langchain_core.rate_limiters import InMemoryRateLimiter
+    return InMemoryRateLimiter(requests_per_second=rpm / 60, check_every_n_seconds=0.1, max_bucket_size=1)
+
+
 def crear_llm(modelo=None):
     """LLM generador. LLM_PROVEEDOR=gemini (por defecto) o groq (respaldo: modelos Llama, Tabla 6 de la tesis).
 
@@ -160,6 +173,7 @@ def crear_llm(modelo=None):
     proveedor = os.environ.get("LLM_PROVEEDOR", "gemini").lower()
     reintentos = int(os.environ.get("LLM_REINTENTOS", "2"))
     timeout = float(os.environ.get("LLM_TIMEOUT", "60"))
+    limitador = _limitador()
     if proveedor == "groq":
         from langchain_groq import ChatGroq
         if not os.environ.get("GROQ_API_KEY"):
@@ -167,13 +181,14 @@ def crear_llm(modelo=None):
         nombre = modelo or os.environ.get("GROQ_MODEL")
         if not nombre:
             raise RuntimeError("Define GROQ_MODEL con un modelo de tu cuenta (lístalos con: python listar_modelos.py)")
-        return ChatGroq(model=nombre, temperature=0, max_retries=reintentos, timeout=timeout)
+        return ChatGroq(model=nombre, temperature=0, max_retries=reintentos, timeout=timeout, rate_limiter=limitador)
     from langchain_google_genai import ChatGoogleGenerativeAI
     if not os.environ.get("GOOGLE_API_KEY"):
         raise RuntimeError("Falta la variable de entorno GOOGLE_API_KEY (clave de Google AI Studio)")
     # timeout y pocos reintentos: si el servicio está saturado (503), se falla rápido en vez de esperar minutos
     return ChatGoogleGenerativeAI(model=modelo or os.environ.get("GEMINI_MODEL", "gemini-3.8-flash"),
-                                  temperature=0, max_retries=reintentos, timeout=timeout)
+                                  temperature=0, max_retries=reintentos, timeout=timeout,
+                                  rate_limiter=limitador)
 
 
 class Agente:

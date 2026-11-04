@@ -3,3 +3,8 @@ toolbarMode = "minimal"   # oculta el botón Deploy y el menú de desarrollador
 
 [theme]
 primaryColor = "#1F4E79"
+
+[server]
+# P9 · III.1 (OWASP ZAP): la app escucha solo en el equipo local (RNF-08) y no queda expuesta en la red.
+# Para una sesión remota, ejecutar con --server.address 0.0.0.0 solo mientras dure la sesión.
+address = "localhost"

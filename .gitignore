@@ -21,3 +21,8 @@ CHROMADM/
 # Cachés de herramientas
 .pytest_cache/
 .ruff_cache/
+
+# Reportes de cobertura (P9): se generan en la CI
+.coverage
+htmlcov/
+coverage.xml

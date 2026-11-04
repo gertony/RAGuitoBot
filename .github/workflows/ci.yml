@@ -1,5 +1,8 @@
-# Integración continua de RAGuitoBot (P8 · II.4.7)
-# En cada push o pull request: Ruff, reconstrucción reproducible de academico.db (semilla 42) y pytest.
+# Integración continua de RAGuitoBot (P8 · II.4.7; ampliada en la P9 · III.1)
+# En cada push o pull request:
+#   calidad-y-pruebas: Ruff, reconstrucción reproducible de academico.db (semilla 42), pytest y cobertura.
+#   seguridad: secretos en todo el historial (gitleaks, RNF-10) y dependencias con vulnerabilidades conocidas
+#              (pip-audit, OWASP A06).
 # No llama a ninguna API de LLM, así que no necesita claves (RNF-10).
 name: CI
 
@@ -22,8 +25,8 @@ jobs:
         run: pip install -r requirements-ci.txt
 
       # Código nuevo del proyecto: debe pasar sin hallazgos
-      - name: Análisis estático bloqueante (APP y tests)
-        run: ruff check APP tests --output-format=github
+      - name: Análisis estático bloqueante (APP, tests y PRUEBAS)
+        run: ruff check APP tests PRUEBAS --output-format=github
 
       # Scripts de la tesis: se reportan sin bloquear, para no alterar el código que generó los resultados
       - name: Análisis estático informativo (scripts de la tesis)
@@ -33,5 +36,40 @@ jobs:
         working-directory: DB
         run: python build_db.py --une une_matriculados.csv --realinho realinho.csv --malla malla_ei.csv --out academico.db
 
-      - name: Pruebas (pytest)
-        run: pytest -v
+      # Módulos medidos: [tool.coverage.run] en pyproject.toml
+      - name: Pruebas (pytest) y cobertura
+        run: pytest -v --cov --cov-report=term-missing --cov-report=html
+
+      - name: Guardar el reporte de cobertura
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cobertura-html
+          path: htmlcov/
+
+  seguridad:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # todo el historial: una clave borrada en un commit viejo sigue expuesta
+
+      - name: Secretos en el historial (gitleaks)
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      # Informativo: el resultado se documenta en la P9; una vulnerabilidad no detiene el pipeline
+      - name: Dependencias con vulnerabilidades conocidas (pip-audit)
+        continue-on-error: true
+        run: |
+          pip install pip-audit
+          if [ -f requirements.txt ]; then
+            pip-audit -r requirements.txt --no-deps --disable-pip --desc
+          else
+            pip-audit -r requirements-ci.txt --desc
+          fi

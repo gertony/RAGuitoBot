@@ -34,3 +34,7 @@ max-complexity = 10
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+# Cobertura (P9 · III.1): núcleo del sistema. Las páginas de Streamlit se verifican con casos de caja negra.
+[tool.coverage.run]
+include = ["TESTBED/consultas.py", "AGENTE/agente.py", "APP/auth.py", "APP/actualizacion.py"]

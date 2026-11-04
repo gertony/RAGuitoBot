@@ -1,0 +1,17 @@
+# pytest + cobertura · 2026-11-02T15:19:37-05:00 · commit base e6d9e2c + cambios de la P9 · Python 3.13.18
+........................................................................ [ 80%]
+  result = tuple_new(cls, iterable)
+  result = tuple_new(cls, iterable)
+                                                       [100%]
+================================ tests coverage ================================
+_______________ coverage: platform linux, python 3.13.18-final-0 _______________
+
+Name                   Stmts   Miss  Cover   Missing
+----------------------------------------------------
+AGENTE/agente.py         167     49    71%   88, 139-148, 151-152, 160-175, 219, 221, 223, 225-230, 239-240, 272-281
+APP/actualizacion.py      35      1    97%   13
+APP/auth.py               28      0   100%
+TESTBED/consultas.py     177     21    88%   51, 69, 92, 160, 168-177, 258-268
+----------------------------------------------------
+TOTAL                    407     71    83%
+90 passed in 5.63s

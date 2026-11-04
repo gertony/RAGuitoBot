@@ -1,0 +1,20 @@
+# pip-audit pip-audit 2.10.1 · 2026-11-02T15:19:49-05:00 · requirements.txt (164 paquetes, versiones fijadas)
+WARNING:pip_audit._cli:--no-deps is supported, but users are encouraged to fully hash their pinned dependencies
+WARNING:pip_audit._cli:Consider using a tool like `pip-compile`: https://pip-tools.readthedocs.io/en/latest/#using-hashes
+Found 14 known vulnerabilities in 5 packages
+Name             Version ID              Fix Versions
+---------------- ------- --------------- ------------
+chromadb         1.5.9   PYSEC-2026-311
+chromadb         1.5.9   PYSEC-2026-311
+chromadb         1.5.9   PYSEC-2026-3814
+chromadb         1.5.9   PYSEC-2026-3815
+chromadb         1.5.9   PYSEC-2026-3813
+diskcache        5.6.3   PYSEC-2026-2447
+diskcache        5.6.3   PYSEC-2026-2447
+langchain-openai 1.1.9   PYSEC-2026-76   1.1.14
+langchain-openai 1.1.9   PYSEC-2026-76   1.1.14
+pypdf            6.21.3  CVE-2026-119203 6.21.4
+pypdf            6.21.3  CVE-2026-119205 6.21.4
+pypdf            6.21.3  CVE-2026-119204 6.21.4
+ragas            0.4.3   PYSEC-2026-3046
+ragas            0.4.3   PYSEC-2026-3046

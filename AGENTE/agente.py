@@ -26,6 +26,7 @@ import json
 import os
 import re
 import sys
+import threading
 import time
 import unicodedata
 from datetime import datetime
@@ -183,8 +184,12 @@ class Agente:
         self.registrar = registrar
         self.cadena_router = PROMPT_ROUTER | self.llm | StrOutputParser()
         # Orquestación LCEL: router -> recuperación -> prompt -> LLM -> texto
-        self.cadena = (RunnableLambda(self._enrutar) | RunnableLambda(self._recuperar)
-                       | RunnableLambda(self._preparar) | PROMPT | self.llm | StrOutputParser())
+        self.recuperacion = RunnableLambda(self._enrutar) | RunnableLambda(self._recuperar)
+        self.generacion = PROMPT | self.llm | StrOutputParser()
+        self.cadena = self.recuperacion | RunnableLambda(self._preparar) | self.generacion
+        # La app comparte una sola instancia entre sesiones (un hilo por sesión): la conexión SQLite se usa
+        # de a un hilo a la vez y el estado de cada consulta viaja en la cadena, no en el objeto (D-02, P9).
+        self._lock = threading.Lock()
 
     # -- pasos de la cadena
     def _enrutar(self, x):
@@ -239,24 +244,28 @@ class Agente:
         return x
 
     def _preparar(self, x):
-        self._ultimo = x
         return {"pregunta": x["pregunta"], "contexto": "\n\n".join(x["contextos"]) or "(sin contexto)"}
 
     # -- interfaz pública
     def responder(self, estudiante_id, pregunta):
         t0 = time.perf_counter()
-        respuesta = self.cadena.invoke({"estudiante_id": estudiante_id, "pregunta": pregunta})
+        with self._lock:  # recuperación (SQLite y ChromaDB) de una consulta a la vez
+            x = self.recuperacion.invoke({"estudiante_id": estudiante_id, "pregunta": pregunta})
+        respuesta = self.generacion.invoke(self._preparar(x))  # el LLM sí atiende consultas en paralelo
         latencia = (time.perf_counter() - t0) * 1000
-        x = self._ultimo
         if self.registrar:  # RF-12
-            self.a.con.execute(
-                "INSERT INTO log_consultas (ts, estudiante_id, ruta, pregunta, respuesta, contextos, latencia_ms) "
-                "VALUES (?,?,?,?,?,?,?)",
-                (datetime.now().isoformat(timespec="seconds"), estudiante_id, x["ruta"], pregunta, respuesta,
-                 json.dumps(x["contextos"], ensure_ascii=False), latencia))
-            self.a.con.commit()
+            with self._lock:
+                self._registrar(x, estudiante_id, pregunta, respuesta, latencia)
         return {"respuesta": respuesta.strip(), "contextos": x["contextos"], "ruta": x["ruta"],
                 "intenciones": x["intenciones"], "router": x["router"], "latencia_ms": round(latencia, 1)}
+
+    def _registrar(self, x, estudiante_id, pregunta, respuesta, latencia):
+        self.a.con.execute(
+            "INSERT INTO log_consultas (ts, estudiante_id, ruta, pregunta, respuesta, contextos, latencia_ms) "
+            "VALUES (?,?,?,?,?,?,?)",
+            (datetime.now().isoformat(timespec="seconds"), estudiante_id, x["ruta"], pregunta, respuesta,
+             json.dumps(x["contextos"], ensure_ascii=False), latencia))
+        self.a.con.commit()
 
 
 if __name__ == "__main__":

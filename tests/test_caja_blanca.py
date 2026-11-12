@@ -26,9 +26,10 @@ CURSOS = [  # codigo, nombre, ciclo, creditos, electivo, grupo
     ("B01", "Lenguaje y Comunicación I", 1, 2, 0, None),
     ("C00", "Física I", 2, 3, 0, None),
     ("C01", "Física II", 3, 3, 0, None),
+    ("C02", "Física III", 4, 3, 0, None),
     ("E01", "Taller de Robótica", 3, 2, 1, "G1"),
 ]
-PRERREQ = [("A02", "A01"), ("A03", "A02"), ("C01", "C00")]
+PRERREQ = [("A02", "A01"), ("A03", "A02"), ("C01", "C00"), ("C02", "C00"), ("C02", "C01")]
 ESTUDIANTES = [  # id, ciclo, periodo, estado
     ("EST0001", 3, "2025-I", "matriculado regular"),
     ("EST0002", 10, "2024-II", "egresado"),
@@ -91,7 +92,8 @@ def test_cb01_promedio_sin_notas(academico):
     ("EST0002", "C00", False, "su estado es 'egresado'"),
     ("EST0001", "C01", False, "le falta aprobar el prerrequisito: Física I"),
     ("EST0001", "C00", True, "cumple los prerrequisitos y no la ha aprobado"),
-], ids=["aprobado", "en-curso", "estado-no-regular", "falta-prerrequisito", "cumple"])
+    ("EST0001", "C02", False, "le falta aprobar el prerrequisito: Física I, Física II"),
+], ids=["aprobado", "en-curso", "estado-no-regular", "falta-prerrequisito", "cumple", "faltan-dos"])
 def test_cb02_puede_llevar(academico, eid, curso, puede, motivo):
     d = academico.puede_llevar(eid, curso)["datos"]
     assert (d["puede"], d["motivo"]) == (puede, motivo)

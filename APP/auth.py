@@ -5,6 +5,8 @@ estudiante_id: ese ID es el que se pasa al agente, nunca uno escrito en la pregu
 """
 import re
 import sqlite3
+import threading
+import time
 
 import bcrypt
 
@@ -20,6 +22,12 @@ CREATE TABLE IF NOT EXISTS usuario (
 """
 FORMATO_ESTUDIANTE = re.compile(r"^EST\d{4}$")
 MIN_CLAVE = 6
+MAX_INTENTOS, ESPERA_S = 5, 30
+
+# Intentos fallidos por código, compartidos por todas las sesiones del servidor (D-07, P9): si el contador
+# viviera en la sesión, bastaría con recargar la página para saltarse el bloqueo (OWASP A07).
+_FALLOS = {}
+_CANDADO = threading.Lock()
 
 
 def conectar(ruta_db):
@@ -54,3 +62,25 @@ def crear_usuario(con, codigo, clave, rol, estudiante_id=None):
     con.execute("INSERT OR REPLACE INTO usuario (codigo, hash, rol, estudiante_id) VALUES (?, ?, ?, ?)",
                 (codigo.upper(), h, rol, estudiante_id))
     con.commit()
+
+
+def segundos_bloqueo(codigo, ahora=None):
+    """Segundos que faltan para que el código pueda volver a intentar (0 si no está bloqueado)."""
+    ahora = time.time() if ahora is None else ahora
+    with _CANDADO:
+        _, hasta = _FALLOS.get(codigo.upper(), (0, 0))
+    return max(0, int(hasta - ahora + 0.999))
+
+
+def registrar_fallo(codigo, ahora=None):
+    """Cuenta un intento fallido; al llegar a MAX_INTENTOS bloquea el código durante ESPERA_S segundos."""
+    ahora = time.time() if ahora is None else ahora
+    with _CANDADO:
+        n, _ = _FALLOS.get(codigo.upper(), (0, 0))
+        n += 1
+        _FALLOS[codigo.upper()] = (0, ahora + ESPERA_S) if n >= MAX_INTENTOS else (n, 0)
+
+
+def limpiar_fallos(codigo):
+    with _CANDADO:
+        _FALLOS.pop(codigo.upper(), None)

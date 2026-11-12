@@ -11,6 +11,8 @@ def validar(df, con):
     faltan = {"estudiante_id", "curso", "periodo", "nota"} - set(df.columns)
     if faltan:
         return [f"Faltan columnas: {', '.join(sorted(faltan))}"]
+    if df.empty:  # D-09: un archivo solo con encabezado no es una actualización
+        return ["El archivo no tiene filas de datos"]
     est = {r[0] for r in con.execute("SELECT id FROM estudiante")}
     cur = {r[0] for r in con.execute("SELECT codigo FROM curso")}
     for i, r in df.iterrows():
@@ -21,8 +23,12 @@ def validar(df, con):
             errores.append(f"Fila {fila}: el curso {r.curso} no existe")
         if not re.fullmatch(r"\d{4}-(I|II)", str(r.periodo)):
             errores.append(f"Fila {fila}: periodo inválido ({r.periodo}); formato 2024-I")
-        if pd.isna(r.nota) or not float(r.nota).is_integer() or not 0 <= r.nota <= 20:
+        nota = pd.to_numeric(r.nota, errors="coerce")  # D-08: un texto («abc») ya no detiene la validación
+        if pd.isna(nota) or not float(nota).is_integer() or not 0 <= nota <= 20:
             errores.append(f"Fila {fila}: la nota debe ser un entero de 0 a 20")
+    clave = ["estudiante_id", "curso", "periodo"]  # D-10: dos filas para la misma matrícula son ambiguas
+    for i in df.index[df.duplicated(subset=clave, keep="first")]:
+        errores.append(f"Fila {i + 2}: repite el estudiante, el curso y el periodo de una fila anterior")
     return errores
 
 

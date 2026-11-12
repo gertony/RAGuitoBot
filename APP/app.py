@@ -5,15 +5,12 @@ P-03 Panel, P-04 Actualizar normatividad y P-05 Reporte (investigador/evaluador)
 
 Uso (desde RAGASTESIS):  streamlit run APP/app.py
 """
-import time
-
 import streamlit as st
 
 import auth
 import servicios
 
 st.set_page_config(page_title="RAGuitoBot", page_icon="🎓", layout="centered")
-MAX_INTENTOS, ESPERA_S = 5, 30
 
 
 @st.cache_resource
@@ -25,25 +22,24 @@ def inicio_sesion():
     """P-01: valida el formulario y redirige según el rol (RF-19, RF-20)."""
     st.title("RAGuitoBot")
     st.caption("Asistente académico · Educación con especialidad de Electrónica e Informática (UNE)")
-    bloqueo = st.session_state.get("bloqueado_hasta", 0)
     with st.form("login"):
         codigo = st.text_input("Código", placeholder="EST0001").strip()
         clave = st.text_input("Contraseña", type="password")
         enviar = st.form_submit_button("Ingresar", type="primary", width="stretch")
     if not enviar:
         return
-    if time.time() < bloqueo:  # freno básico ante intentos repetidos (OWASP A07)
-        st.error(f"Demasiados intentos. Espera {int(bloqueo - time.time())} s.")
+    espera = auth.segundos_bloqueo(codigo) if codigo else 0
+    if espera:  # freno ante intentos repetidos, por código y no por sesión (OWASP A07, D-07)
+        st.error(f"Demasiados intentos. Espera {espera} s.")
         return
     error = auth.validar_formulario(codigo, clave)
     usuario = None if error else auth.autenticar(_con(), codigo, clave)
     if usuario is None:
-        n = st.session_state.get("intentos", 0) + 1
-        st.session_state["intentos"] = n
-        if n >= MAX_INTENTOS:
-            st.session_state["bloqueado_hasta"], st.session_state["intentos"] = time.time() + ESPERA_S, 0
+        if codigo:
+            auth.registrar_fallo(codigo)
         st.error(error or "Código o contraseña incorrectos.")  # mensaje genérico: no revela qué campo falló
         return
+    auth.limpiar_fallos(codigo)
     st.session_state.clear()
     st.session_state["usuario"] = usuario
     st.rerun()

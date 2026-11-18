@@ -1,0 +1,36 @@
+﻿id,tipo,categoria,estudiante,clasificacion,observacion
+P01,personal,estado,EST0041,correcta,Correcta: el dato clave coincide con el ground truth.
+P02,personal,estado,EST0061,correcta,Correcta: el dato clave coincide con el ground truth.
+P03,personal,estado,EST0065,correcta,Correcta: el dato clave coincide con el ground truth.
+P04,personal,promedio,EST0030,correcta,Correcta: el dato clave coincide con el ground truth.
+P05,personal,promedio,EST0028,correcta,Correcta: el dato clave coincide con el ground truth.
+P06,personal,promedio,EST0027,correcta,Correcta: el dato clave coincide con el ground truth.
+P07,personal,avance,EST0021,correcta,Correcta: el dato clave coincide con el ground truth.
+P08,personal,avance,EST0019,correcta,Correcta: el dato clave coincide con el ground truth.
+P09,personal,avance,EST0054,correcta,Correcta: el dato clave coincide con el ground truth.
+P10,personal,notas_periodo,EST0018,correcta,Correcta: el dato clave coincide con el ground truth.
+P11,personal,notas_periodo,EST0040,correcta,Correcta. Agrega un resumen (5 de 6 aprobadas) coherente con el contexto.
+P12,personal,nota_curso,EST0016,correcta,Correcta: el dato clave coincide con el ground truth.
+P13,personal,nota_curso,EST0016,correcta,"Correcta. Responde «sí aprobó» (2023-I, 12); omite el intento desaprobado de 2022-II, pero no lo contradice."
+P14,personal,nota_curso,EST0035,correcta,Correcta: el dato clave coincide con el ground truth.
+P15,personal,en_curso,EST0014,correcta,Correcta. Los 21 créditos están en el contexto recuperado.
+P16,personal,en_curso,EST0015,correcta,Correcta: el dato clave coincide con el ground truth.
+P17,personal,horario,EST0033,correcta,Correcta: el dato clave coincide con el ground truth.
+P18,personal,prerrequisitos,EST0036,correcta,Correcta: el dato clave coincide con el ground truth.
+P19,personal,puede_llevar,EST0022,correcta,Correcta: el dato clave coincide con el ground truth.
+P20,personal,puede_llevar,EST0057,correcta,Correcta: el dato clave coincide con el ground truth.
+N01,normativa,nota_aprobatoria,,correcta,Correcta: el dato clave coincide con el ground truth.
+N02,normativa,repitencia,,correcta,Correcta: el dato clave coincide con el ground truth.
+N03,normativa,reserva,,correcta,Correcta: el dato clave coincide con el ground truth.
+N04,normativa,desmatricula,,sin_informacion,Sin información (RF-10). No se recuperó el art. 290 (desmatrícula).
+N05,normativa,tope_creditos,,correcta,"Correcta. Cita además el art. 279, que también fija el tope de 22 créditos."
+N06,normativa,rectificacion,,correcta,Correcta: el dato clave coincide con el ground truth.
+N07,normativa,bachiller,,correcta,Correcta: el dato clave coincide con el ground truth.
+N08,normativa,titulo,,correcta,Correcta: el dato clave coincide con el ground truth.
+N09,normativa,sumilla,,correcta,Correcta: el dato clave coincide con el ground truth.
+N10,normativa,electivos,,correcta,Correcta: el dato clave coincide con el ground truth.
+M01,mixta,repitencia_282,EST0069,correcta,Correcta: el dato clave coincide con el ground truth.
+M02,mixta,repitencia_riesgo,EST0054,correcta,Correcta: el dato clave coincide con el ground truth.
+M03,mixta,bachiller_egresado,EST0061,contradice_gt,"Contradice el ground truth: afirma que cumple sin acreditar idioma por la excepción del bachillerato automático (egresados 2020-2023, Ley 31183 y Ley 31359). El fragmento recuperado sí contiene esa excepción y el estudiante egresó en 2023-I, así que el ground truth podría estar incompleto [VERIFICAR con el autor]. Además cita «art. 381» y «art. 133», rótulos erróneos del fragmento (la norma es una disposición complementaria transitoria)."
+M04,mixta,desmatricula_regular,EST0027,sin_informacion,Sin información (RF-10). No se recuperó el art. 290; sí el dato personal (17 cr; Seminario de Tesis 3 cr).
+M05,mixta,tope_creditos,EST0041,correcta,Correcta: el dato clave coincide con el ground truth.

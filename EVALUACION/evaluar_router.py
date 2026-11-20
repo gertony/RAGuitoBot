@@ -3,6 +3,7 @@
 Uso (desde la raíz del proyecto, con el .env configurado):
     python EVALUACION/evaluar_router.py               # compara ROUTER_MODO=reglas y llm
     python EVALUACION/evaluar_router.py --modos reglas  # solo reglas (no llama al LLM: gratis)
+    python EVALUACION/evaluar_router.py --modos union --confirmacion  # USO ÚNICO: suma el conjunto de confirmación
 
 Métricas:
   exacta     la ruta coincide con la esperada
@@ -28,6 +29,8 @@ except ImportError:
 import agente  # noqa: E402
 
 CONJUNTOS = {"testbed": RAIZ / "TESTBED" / "testbed.json", "retencion": RAIZ / "TESTBED" / "testbed_retencion.json"}
+# Escrito antes de programar el modo union (sha256 b4898d7a…), para confirmar una sola vez el modo elegido
+CONFIRMACION = RAIZ / "TESTBED" / "testbed_confirmacion.json"
 # En la app siempre hay un estudiante en sesión (CU-11). Las preguntas normativas del testbed no tienen estudiante y
 # _enrutar fuerza entonces la ruta normativa, lo que no refleja el uso real: se evalúan con una sesión activa.
 SESION_POR_DEFECTO = "EST0030"
@@ -39,11 +42,11 @@ class _SinBuscador:  # el enrutador no consulta ChromaDB
         return []
 
 
-def evaluar(modo, llm=None):
+def evaluar(modo, llm=None, conjuntos=None):
     os.environ["ROUTER_MODO"] = modo
     ag = agente.Agente(buscador=_SinBuscador(), registrar=False, llm=llm)
     filas = []
-    for conjunto, ruta in CONJUNTOS.items():
+    for conjunto, ruta in (conjuntos or CONJUNTOS).items():
         for par in json.loads(ruta.read_text(encoding="utf-8")):
             eid = par.get("estudiante_id") or SESION_POR_DEFECTO
             x = ag._enrutar({"pregunta": par["pregunta"], "estudiante_id": eid})
@@ -58,7 +61,8 @@ def evaluar(modo, llm=None):
 
 def resumen(filas):
     print(f"\n{'modo':8} {'conjunto':10} {'tipo':10} {'n':>3} {'exacta':>8} {'cobertura':>10}")
-    claves = sorted({(f["modo"], f["conjunto"]) for f in filas}, key=lambda k: (k[0], k[1] != "testbed"))
+    orden = {"testbed": 0, "retencion": 1, "confirmacion": 2}
+    claves = sorted({(f["modo"], f["conjunto"]) for f in filas}, key=lambda k: (k[0], orden.get(k[1], 3)))
     for modo, conjunto in claves:
         for tipo in ("personal", "normativa", "mixta", "TOTAL"):
             g = [f for f in filas if f["modo"] == modo and f["conjunto"] == conjunto and tipo in (f["tipo"], "TOTAL")]
@@ -69,11 +73,13 @@ def resumen(filas):
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
-    ap.add_argument("--modos", nargs="+", default=["reglas", "llm"], choices=["reglas", "llm"])
+    ap.add_argument("--modos", nargs="+", default=["reglas", "llm", "union"], choices=["reglas", "llm", "union"])
+    ap.add_argument("--confirmacion", action="store_true", help="agrega el conjunto de confirmación (uso único)")
     a = ap.parse_args()
+    conjuntos = dict(CONJUNTOS, **({"confirmacion": CONFIRMACION} if a.confirmacion else {}))
     todas = []
     for m in a.modos:
-        todas += evaluar(m)
+        todas += evaluar(m, conjuntos=conjuntos)
     resumen(todas)
     salida = RAIZ / "PRUEBAS" / "evidencias" / f"router_{datetime.now():%Y%m%d_%H%M}.csv"
     salida.parent.mkdir(parents=True, exist_ok=True)

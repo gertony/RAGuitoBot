@@ -48,3 +48,21 @@ def test_modo_por_defecto_es_la_linea_base(monkeypatch):
     monkeypatch.delenv("ROUTER_MODO", raising=False)
     ag = agente.Agente(llm=FakeListChatModel(responses=["x"]), buscador=SinNormativa(), registrar=False)
     assert ag.modo_router == "reglas"
+
+
+def test_union_discrepancia_trae_ambas_fuentes(monkeypatch):
+    # las reglas ven un dato propio («volviendo a llevar»), el LLM solo norma: se recuperan las dos fuentes
+    monkeypatch.setenv("ROUTER_MODO", "union")
+    ag = agente.Agente(llm=FakeListChatModel(responses=['{"ruta": "normativa"}']), buscador=SinNormativa(),
+                       registrar=False)
+    x = ag._enrutar({"pregunta": "Estoy volviendo a llevar Programación, ¿qué pasa si la desapruebo otra vez?",
+                     "estudiante_id": "EST0030"})
+    assert x["ruta"] == "mixta" and x["router"].startswith("union (reglas=")
+
+
+def test_union_si_coinciden_usa_esa_ruta(monkeypatch):
+    monkeypatch.setenv("ROUTER_MODO", "union")
+    ag = agente.Agente(llm=FakeListChatModel(responses=['{"ruta": "personal"}']), buscador=SinNormativa(),
+                       registrar=False)
+    x = ag._enrutar({"pregunta": "¿Cuál es mi promedio ponderado?", "estudiante_id": "EST0030"})
+    assert (x["ruta"], x["router"]) == ("personal", "union (coinciden)")

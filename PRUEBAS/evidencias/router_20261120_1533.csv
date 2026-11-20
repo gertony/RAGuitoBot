@@ -1,0 +1,178 @@
+modo,conjunto,id,tipo,esperada,obtenida,router,exacta,cobertura,intenciones
+reglas,testbed,P01,personal,personal,personal,reglas,1,1,estado
+reglas,testbed,P02,personal,personal,personal,reglas,1,1,estado
+reglas,testbed,P03,personal,personal,personal,reglas,1,1,estado
+reglas,testbed,P04,personal,personal,personal,reglas,1,1,promedio
+reglas,testbed,P05,personal,personal,personal,reglas,1,1,promedio|notas_periodo
+reglas,testbed,P06,personal,personal,personal,reglas,1,1,promedio
+reglas,testbed,P07,personal,personal,personal,reglas,1,1,avance
+reglas,testbed,P08,personal,personal,personal,reglas,1,1,avance
+reglas,testbed,P09,personal,personal,personal,reglas,1,1,avance
+reglas,testbed,P10,personal,personal,personal,reglas,1,1,notas_periodo
+reglas,testbed,P11,personal,personal,personal,reglas,1,1,notas_periodo
+reglas,testbed,P12,personal,personal,personal,reglas,1,1,nota_curso
+reglas,testbed,P13,personal,personal,personal,reglas,1,1,nota_curso
+reglas,testbed,P14,personal,personal,personal,reglas,1,1,nota_curso
+reglas,testbed,P15,personal,personal,personal,reglas,1,1,en_curso
+reglas,testbed,P16,personal,personal,personal,reglas,1,1,en_curso
+reglas,testbed,P17,personal,personal,personal,reglas,1,1,horario
+reglas,testbed,P18,personal,personal,personal,reglas,1,1,prerrequisitos
+reglas,testbed,P19,personal,personal,personal,reglas,1,1,puede_llevar
+reglas,testbed,P20,personal,personal,personal,reglas,1,1,puede_llevar
+reglas,testbed,N01,normativa,normativa,normativa,reglas,1,1,
+reglas,testbed,N02,normativa,normativa,normativa,reglas,1,1,
+reglas,testbed,N03,normativa,normativa,normativa,reglas,1,1,
+reglas,testbed,N04,normativa,normativa,normativa,reglas,1,1,
+reglas,testbed,N05,normativa,normativa,normativa,reglas,1,1,
+reglas,testbed,N06,normativa,normativa,normativa,reglas,1,1,
+reglas,testbed,N07,normativa,normativa,normativa,reglas,1,1,
+reglas,testbed,N08,normativa,normativa,normativa,reglas,1,1,
+reglas,testbed,N09,normativa,normativa,normativa,reglas,1,1,
+reglas,testbed,N10,normativa,normativa,normativa,reglas,1,1,
+reglas,testbed,M01,mixta,mixta,mixta,reglas,1,1,desaprobados|estado
+reglas,testbed,M02,mixta,mixta,mixta,reglas,1,1,desaprobados|estado
+reglas,testbed,M03,mixta,mixta,mixta,reglas,1,1,avance
+reglas,testbed,M04,mixta,mixta,mixta,reglas,1,1,en_curso
+reglas,testbed,M05,mixta,mixta,mixta,reglas,1,1,en_curso
+reglas,retencion,H-P01,personal,personal,personal,reglas,1,1,promedio
+reglas,retencion,H-P02,personal,personal,personal,reglas,1,1,resumen
+reglas,retencion,H-P03,personal,personal,personal,reglas,1,1,notas_periodo
+reglas,retencion,H-P04,personal,personal,personal,reglas,1,1,resumen
+reglas,retencion,H-P05,personal,personal,personal,reglas,1,1,puede_llevar
+reglas,retencion,H-N01,normativa,normativa,personal,reglas,0,0,resumen
+reglas,retencion,H-N02,normativa,normativa,personal,reglas,0,0,nota_curso
+reglas,retencion,H-N03,normativa,normativa,personal,reglas,0,0,promedio
+reglas,retencion,H-N04,normativa,normativa,normativa,llm,1,1,
+reglas,retencion,H-N05,normativa,normativa,personal,reglas,0,0,resumen
+reglas,retencion,H-M01,mixta,mixta,normativa,reglas,0,0,
+reglas,retencion,H-M02,mixta,mixta,personal,reglas,0,0,notas_periodo
+reglas,retencion,H-M03,mixta,mixta,personal,reglas,0,0,resumen
+reglas,retencion,H-M04,mixta,mixta,personal,reglas,0,0,promedio
+reglas,retencion,H-M05,mixta,mixta,personal,reglas,0,0,resumen
+reglas,confirmacion,C-P01,personal,personal,personal,reglas,1,1,resumen
+reglas,confirmacion,C-P02,personal,personal,personal,llm,1,1,resumen
+reglas,confirmacion,C-P03,personal,personal,personal,reglas,1,1,avance
+reglas,confirmacion,C-N01,normativa,normativa,personal,reglas,0,0,resumen
+reglas,confirmacion,C-N02,normativa,normativa,personal,reglas,0,0,resumen
+reglas,confirmacion,C-N03,normativa,normativa,normativa,llm,1,1,
+reglas,confirmacion,C-M01,mixta,mixta,personal,reglas,0,0,en_curso
+reglas,confirmacion,C-M02,mixta,mixta,personal,reglas,0,0,resumen
+reglas,confirmacion,C-M03,mixta,mixta,personal,reglas,0,0,nota_curso
+llm,testbed,P01,personal,personal,personal,llm-v2,1,1,estado
+llm,testbed,P02,personal,personal,personal,llm-v2,1,1,estado
+llm,testbed,P03,personal,personal,personal,llm-v2,1,1,estado
+llm,testbed,P04,personal,personal,personal,llm-v2,1,1,promedio
+llm,testbed,P05,personal,personal,personal,llm-v2,1,1,promedio|notas_periodo
+llm,testbed,P06,personal,personal,personal,llm-v2,1,1,promedio
+llm,testbed,P07,personal,personal,personal,llm-v2,1,1,avance
+llm,testbed,P08,personal,personal,personal,llm-v2,1,1,avance
+llm,testbed,P09,personal,personal,mixta,llm-v2,0,1,avance
+llm,testbed,P10,personal,personal,personal,llm-v2,1,1,notas_periodo
+llm,testbed,P11,personal,personal,personal,llm-v2,1,1,notas_periodo
+llm,testbed,P12,personal,personal,personal,llm-v2,1,1,nota_curso
+llm,testbed,P13,personal,personal,personal,llm-v2,1,1,nota_curso
+llm,testbed,P14,personal,personal,personal,llm-v2,1,1,nota_curso
+llm,testbed,P15,personal,personal,personal,llm-v2,1,1,en_curso
+llm,testbed,P16,personal,personal,personal,llm-v2,1,1,en_curso
+llm,testbed,P17,personal,personal,personal,llm-v2,1,1,horario
+llm,testbed,P18,personal,personal,normativa,llm-v2,0,0,
+llm,testbed,P19,personal,personal,mixta,llm-v2,0,1,puede_llevar
+llm,testbed,P20,personal,personal,mixta,llm-v2,0,1,puede_llevar
+llm,testbed,N01,normativa,normativa,normativa,llm-v2,1,1,
+llm,testbed,N02,normativa,normativa,normativa,llm-v2,1,1,
+llm,testbed,N03,normativa,normativa,normativa,llm-v2,1,1,
+llm,testbed,N04,normativa,normativa,normativa,llm-v2,1,1,
+llm,testbed,N05,normativa,normativa,normativa,llm-v2,1,1,
+llm,testbed,N06,normativa,normativa,normativa,llm-v2,1,1,
+llm,testbed,N07,normativa,normativa,normativa,llm-v2,1,1,
+llm,testbed,N08,normativa,normativa,normativa,llm-v2,1,1,
+llm,testbed,N09,normativa,normativa,normativa,llm-v2,1,1,
+llm,testbed,N10,normativa,normativa,normativa,llm-v2,1,1,
+llm,testbed,M01,mixta,mixta,mixta,llm-v2,1,1,desaprobados|estado
+llm,testbed,M02,mixta,mixta,normativa,llm-v2,0,0,
+llm,testbed,M03,mixta,mixta,mixta,llm-v2,1,1,avance
+llm,testbed,M04,mixta,mixta,normativa,llm-v2,0,0,
+llm,testbed,M05,mixta,mixta,mixta,llm-v2,1,1,en_curso
+llm,retencion,H-P01,personal,personal,personal,llm-v2,1,1,promedio
+llm,retencion,H-P02,personal,personal,mixta,llm-v2,0,1,resumen|desaprobados
+llm,retencion,H-P03,personal,personal,personal,llm-v2,1,1,notas_periodo
+llm,retencion,H-P04,personal,personal,personal,llm-v2,1,1,resumen
+llm,retencion,H-P05,personal,personal,mixta,llm-v2,0,1,puede_llevar
+llm,retencion,H-N01,normativa,normativa,normativa,llm-v2,1,1,
+llm,retencion,H-N02,normativa,normativa,normativa,llm-v2,1,1,
+llm,retencion,H-N03,normativa,normativa,normativa,llm-v2,1,1,
+llm,retencion,H-N04,normativa,normativa,normativa,llm-v2,1,1,
+llm,retencion,H-N05,normativa,normativa,normativa,llm-v2,1,1,
+llm,retencion,H-M01,mixta,mixta,mixta,llm-v2,1,1,resumen|desaprobados
+llm,retencion,H-M02,mixta,mixta,mixta,llm-v2,1,1,notas_periodo
+llm,retencion,H-M03,mixta,mixta,mixta,llm-v2,1,1,resumen|desaprobados
+llm,retencion,H-M04,mixta,mixta,mixta,llm-v2,1,1,promedio
+llm,retencion,H-M05,mixta,mixta,mixta,llm-v2,1,1,resumen|desaprobados
+llm,confirmacion,C-P01,personal,personal,personal,llm-v2,1,1,resumen
+llm,confirmacion,C-P02,personal,personal,personal,llm-v2,1,1,resumen
+llm,confirmacion,C-P03,personal,personal,personal,llm-v2,1,1,avance
+llm,confirmacion,C-N01,normativa,normativa,normativa,llm-v2,1,1,
+llm,confirmacion,C-N02,normativa,normativa,normativa,llm-v2,1,1,
+llm,confirmacion,C-N03,normativa,normativa,normativa,llm-v2,1,1,
+llm,confirmacion,C-M01,mixta,mixta,mixta,llm-v2,1,1,en_curso
+llm,confirmacion,C-M02,mixta,mixta,mixta,llm-v2,1,1,resumen|desaprobados
+llm,confirmacion,C-M03,mixta,mixta,mixta,llm-v2,1,1,nota_curso
+union,testbed,P01,personal,personal,personal,union (coinciden),1,1,estado
+union,testbed,P02,personal,personal,personal,union (coinciden),1,1,estado
+union,testbed,P03,personal,personal,personal,union (coinciden),1,1,estado
+union,testbed,P04,personal,personal,personal,union (coinciden),1,1,promedio
+union,testbed,P05,personal,personal,personal,union (coinciden),1,1,promedio|notas_periodo
+union,testbed,P06,personal,personal,personal,union (coinciden),1,1,promedio
+union,testbed,P07,personal,personal,personal,union (coinciden),1,1,avance
+union,testbed,P08,personal,personal,personal,union (coinciden),1,1,avance
+union,testbed,P09,personal,personal,mixta,"union (reglas=personal, llm=mixta)",0,1,avance
+union,testbed,P10,personal,personal,personal,union (coinciden),1,1,notas_periodo
+union,testbed,P11,personal,personal,personal,union (coinciden),1,1,notas_periodo
+union,testbed,P12,personal,personal,personal,union (coinciden),1,1,nota_curso
+union,testbed,P13,personal,personal,personal,union (coinciden),1,1,nota_curso
+union,testbed,P14,personal,personal,personal,union (coinciden),1,1,nota_curso
+union,testbed,P15,personal,personal,personal,union (coinciden),1,1,en_curso
+union,testbed,P16,personal,personal,personal,union (coinciden),1,1,en_curso
+union,testbed,P17,personal,personal,personal,union (coinciden),1,1,horario
+union,testbed,P18,personal,personal,mixta,"union (reglas=personal, llm=normativa)",0,1,prerrequisitos
+union,testbed,P19,personal,personal,mixta,"union (reglas=personal, llm=mixta)",0,1,puede_llevar
+union,testbed,P20,personal,personal,mixta,"union (reglas=personal, llm=mixta)",0,1,puede_llevar
+union,testbed,N01,normativa,normativa,normativa,union (coinciden),1,1,
+union,testbed,N02,normativa,normativa,normativa,union (coinciden),1,1,
+union,testbed,N03,normativa,normativa,normativa,union (coinciden),1,1,
+union,testbed,N04,normativa,normativa,normativa,union (coinciden),1,1,
+union,testbed,N05,normativa,normativa,normativa,union (coinciden),1,1,
+union,testbed,N06,normativa,normativa,normativa,union (coinciden),1,1,
+union,testbed,N07,normativa,normativa,normativa,union (coinciden),1,1,
+union,testbed,N08,normativa,normativa,normativa,union (coinciden),1,1,
+union,testbed,N09,normativa,normativa,normativa,union (coinciden),1,1,
+union,testbed,N10,normativa,normativa,normativa,union (coinciden),1,1,
+union,testbed,M01,mixta,mixta,mixta,union (coinciden),1,1,desaprobados|estado
+union,testbed,M02,mixta,mixta,mixta,"union (reglas=mixta, llm=normativa)",1,1,desaprobados|estado
+union,testbed,M03,mixta,mixta,mixta,union (coinciden),1,1,avance
+union,testbed,M04,mixta,mixta,mixta,"union (reglas=mixta, llm=normativa)",1,1,en_curso
+union,testbed,M05,mixta,mixta,mixta,union (coinciden),1,1,en_curso
+union,retencion,H-P01,personal,personal,personal,union (coinciden),1,1,promedio
+union,retencion,H-P02,personal,personal,mixta,"union (reglas=personal, llm=mixta)",0,1,resumen|desaprobados
+union,retencion,H-P03,personal,personal,personal,union (coinciden),1,1,notas_periodo
+union,retencion,H-P04,personal,personal,personal,union (coinciden),1,1,resumen
+union,retencion,H-P05,personal,personal,mixta,"union (reglas=personal, llm=mixta)",0,1,puede_llevar
+union,retencion,H-N01,normativa,normativa,mixta,"union (reglas=personal, llm=normativa)",0,1,resumen|desaprobados
+union,retencion,H-N02,normativa,normativa,mixta,"union (reglas=personal, llm=normativa)",0,1,nota_curso
+union,retencion,H-N03,normativa,normativa,mixta,"union (reglas=personal, llm=normativa)",0,1,promedio
+union,retencion,H-N04,normativa,normativa,normativa,union (coinciden),1,1,
+union,retencion,H-N05,normativa,normativa,mixta,"union (reglas=personal, llm=normativa)",0,1,resumen|desaprobados
+union,retencion,H-M01,mixta,mixta,mixta,"union (reglas=normativa, llm=mixta)",1,1,resumen|desaprobados
+union,retencion,H-M02,mixta,mixta,mixta,"union (reglas=personal, llm=mixta)",1,1,notas_periodo
+union,retencion,H-M03,mixta,mixta,mixta,"union (reglas=personal, llm=mixta)",1,1,resumen|desaprobados
+union,retencion,H-M04,mixta,mixta,personal,union (coinciden),0,0,promedio
+union,retencion,H-M05,mixta,mixta,mixta,"union (reglas=personal, llm=mixta)",1,1,resumen|desaprobados
+union,confirmacion,C-P01,personal,personal,personal,union (coinciden),1,1,resumen
+union,confirmacion,C-P02,personal,personal,personal,union (coinciden),1,1,resumen
+union,confirmacion,C-P03,personal,personal,personal,union (coinciden),1,1,avance
+union,confirmacion,C-N01,normativa,normativa,mixta,"union (reglas=personal, llm=normativa)",0,1,resumen|desaprobados
+union,confirmacion,C-N02,normativa,normativa,mixta,"union (reglas=personal, llm=normativa)",0,1,resumen|desaprobados
+union,confirmacion,C-N03,normativa,normativa,normativa,union (coinciden),1,1,
+union,confirmacion,C-M01,mixta,mixta,mixta,"union (reglas=personal, llm=mixta)",1,1,en_curso
+union,confirmacion,C-M02,mixta,mixta,mixta,"union (reglas=personal, llm=mixta)",1,1,resumen|desaprobados
+union,confirmacion,C-M03,mixta,mixta,mixta,"union (reglas=personal, llm=mixta)",1,1,nota_curso

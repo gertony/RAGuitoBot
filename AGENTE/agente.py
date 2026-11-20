@@ -245,7 +245,8 @@ class Agente:
         self.registrar = registrar
         self.cadena_router = PROMPT_ROUTER | self.llm | StrOutputParser()
         self.cadena_router_v2 = PROMPT_ROUTER_V2 | self.llm | StrOutputParser()
-        # ROUTER_MODO=reglas (línea base de la tesis: reglas + desempate con el LLM) o llm (v2, 20/11/2026)
+        # ROUTER_MODO=reglas (línea base de la tesis: reglas + desempate con el LLM), llm (v2: decide el LLM) o union
+        # (v2: si reglas y LLM discrepan, ruta mixta para recuperar ambas fuentes). Los dos últimos, del 20/11/2026.
         self.modo_router = os.environ.get("ROUTER_MODO", "reglas").lower()
         # Orquestación LCEL: router -> recuperación -> prompt -> LLM -> texto
         self.recuperacion = RunnableLambda(self._enrutar) | RunnableLambda(self._recuperar)
@@ -265,9 +266,14 @@ class Agente:
 
     def _enrutar(self, x):
         r = router_reglas(x["pregunta"], self.a)
-        if self.modo_router == "llm":  # v2: el LLM decide la ruta; las reglas aportan intenciones, curso y día
+        if self.modo_router in ("llm", "union"):  # v2: el LLM decide; las reglas aportan intenciones, curso y día
             try:
-                r["ruta"], r["router"] = self._ruta_llm(x["pregunta"]), "llm-v2"
+                ruta_llm = self._ruta_llm(x["pregunta"])
+                if self.modo_router == "union" and r["ruta"] not in (None, ruta_llm):
+                    # unión de fuentes: si reglas y LLM discrepan, se recuperan ambas (ante la duda, buscar en los dos)
+                    r["ruta"], r["router"] = "mixta", f"union (reglas={r['ruta']}, llm={ruta_llm})"
+                else:
+                    r["ruta"], r["router"] = ruta_llm, ("union (coinciden)" if self.modo_router == "union" else "llm-v2")
             except Exception:
                 r["router"] = "reglas (llm-v2 fallido)"
                 if r["ruta"] is None:

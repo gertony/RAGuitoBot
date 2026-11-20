@@ -1,0 +1,132 @@
+[
+  {
+    "id": "C-P01",
+    "tipo": "personal",
+    "categoria": "en curso",
+    "estudiante_id": "EST0047",
+    "pregunta": "¿qué cursos llevo ahorita?",
+    "ground_truth": "En 2024-I lleva 7 asignaturas (20 créditos): Ecología y Ambiente, Lenguaje y Comunicación III, Realidad Regional y Nacional, Pedagogía General, Ética, Constitución y Derechos Humanos, Análisis de Circuitos Eléctricos y Programación.",
+    "fuentes_esperadas": [
+      "cursos_en_curso"
+    ],
+    "ruta_esperada": "personal",
+    "revisado": false,
+    "origen_ground_truth": "calculado con consultas.py sobre academico.db (20/11/2026)"
+  },
+  {
+    "id": "C-P02",
+    "tipo": "personal",
+    "categoria": "horario",
+    "estudiante_id": "EST0052",
+    "pregunta": "¿a qué hora entro el jueves?",
+    "ground_truth": "El jueves entra a las 08:00: Ética, Constitución y Derechos Humanos de 08:00 a 10:00 (T-305); luego Pedagogía General de 16:00 a 18:00 (T-304) y Actividad Artística I de 19:00 a 21:00 (T-206).",
+    "fuentes_esperadas": [
+      "horario"
+    ],
+    "ruta_esperada": "personal",
+    "revisado": false,
+    "origen_ground_truth": "calculado con consultas.py sobre academico.db (20/11/2026)"
+  },
+  {
+    "id": "C-P03",
+    "tipo": "personal",
+    "categoria": "avance",
+    "estudiante_id": "EST0023",
+    "pregunta": "¿en qué porcentaje de la carrera estoy?",
+    "ground_truth": "Lleva el 40,7 % de la carrera: 87 de 214 créditos aprobados.",
+    "fuentes_esperadas": [
+      "avance_curricular"
+    ],
+    "ruta_esperada": "personal",
+    "revisado": false,
+    "origen_ground_truth": "calculado con consultas.py sobre academico.db (20/11/2026)"
+  },
+  {
+    "id": "C-N01",
+    "tipo": "normativa",
+    "categoria": "matrícula",
+    "estudiante_id": null,
+    "pregunta": "¿qué pasos tengo que seguir para matricularme?",
+    "ground_truth": "Pagar el derecho de matrícula, ingresar al sistema de gestión académica (SIGEAC) y realizar la matrícula, registrar las asignaturas del ciclo correspondiente e imprimir la ficha de matrícula (art. 284 del Reglamento General de la UNE).",
+    "fuentes_esperadas": [
+      "Reglamento General UNE, art. 284"
+    ],
+    "ruta_esperada": "normativa",
+    "revisado": false,
+    "origen_ground_truth": "Reglamento General UNE, art. 284"
+  },
+  {
+    "id": "C-N02",
+    "tipo": "normativa",
+    "categoria": "tutoría",
+    "estudiante_id": null,
+    "pregunta": "¿la universidad tiene tutorías por si me va mal en los cursos?",
+    "ground_truth": "Sí. La UNE desarrolla programas de tutoría, un acompañamiento que guía al estudiante para solucionar problemas académicos, y de consejería, que orienta sus decisiones académicas; están a cargo de las facultades y escuelas (art. 280 del Reglamento General de la UNE).",
+    "fuentes_esperadas": [
+      "Reglamento General UNE, art. 280"
+    ],
+    "ruta_esperada": "normativa",
+    "revisado": false,
+    "origen_ground_truth": "Reglamento General UNE, art. 280"
+  },
+  {
+    "id": "C-N03",
+    "tipo": "normativa",
+    "categoria": "becas",
+    "estudiante_id": null,
+    "pregunta": "¿puedo postular a becas de otras instituciones siendo alumno?",
+    "ground_truth": "Sí. Es un derecho del estudiante participar en concursos de becas de instituciones públicas o privadas, nacionales y extranjeras; dentro de sus posibilidades, la universidad otorga licencia académica y ayuda económica a los seleccionados (art. 297.4 del Reglamento General de la UNE).",
+    "fuentes_esperadas": [
+      "Reglamento General UNE, art. 297"
+    ],
+    "ruta_esperada": "normativa",
+    "revisado": false,
+    "origen_ground_truth": "Reglamento General UNE, art. 297.4"
+  },
+  {
+    "id": "C-M01",
+    "tipo": "mixta",
+    "categoria": "repitencia",
+    "estudiante_id": "EST0012",
+    "pregunta": "estoy llevando lenguaje 1 por tercera vez, ¿qué me pasa si no la paso?",
+    "ground_truth": "Ya desaprobó Lenguaje y Comunicación I dos veces y la está llevando en 2024-I. Si la desaprueba por tercera vez, según el art. 282 será separado temporalmente por un año; al volver solo podrá matricularse en esa asignatura, y si la desaprueba por cuarta vez procede su retiro definitivo.",
+    "fuentes_esperadas": [
+      "desaprobados",
+      "Reglamento General UNE, art. 282"
+    ],
+    "ruta_esperada": "mixta",
+    "revisado": false,
+    "origen_ground_truth": "calculado con consultas.py sobre academico.db (20/11/2026) + art. 282"
+  },
+  {
+    "id": "C-M02",
+    "tipo": "mixta",
+    "categoria": "orden de mérito",
+    "estudiante_id": "EST0042",
+    "pregunta": "jalé formulación de proyectos, ¿eso me afecta para el orden de mérito?",
+    "ground_truth": "Sí. Tiene Formulación y Evaluación de Proyectos desaprobada y otras asignaturas desaprobadas una vez antes de aprobarlas; el art. 294 solo considera para el orden de mérito a quienes cursaron los diez semestres sin desaprobar ninguna asignatura.",
+    "fuentes_esperadas": [
+      "desaprobados",
+      "Reglamento General UNE, art. 294"
+    ],
+    "ruta_esperada": "mixta",
+    "revisado": false,
+    "origen_ground_truth": "calculado con consultas.py sobre academico.db (20/11/2026) + art. 294"
+  },
+  {
+    "id": "C-M03",
+    "tipo": "mixta",
+    "categoria": "cambio de programa",
+    "estudiante_id": "EST0020",
+    "pregunta": "¿ya cumplo para cambiarme a otro programa de mi facultad?",
+    "ground_truth": "Todavía no. Tiene 84 créditos aprobados en 4 semestres (el art. 285.2 pide 88) y un promedio ponderado total de 12,02 (se pide mínimo 16); además debe obtener vacante por orden de mérito.",
+    "fuentes_esperadas": [
+      "avance_curricular",
+      "promedio_ponderado",
+      "Reglamento General UNE, art. 285"
+    ],
+    "ruta_esperada": "mixta",
+    "revisado": false,
+    "origen_ground_truth": "calculado con consultas.py sobre academico.db (20/11/2026) + art. 285.2"
+  }
+]

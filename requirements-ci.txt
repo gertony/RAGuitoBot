@@ -9,3 +9,4 @@ pytest-cov
 ruff
 langchain-groq==1.1.3
 langchain-google-genai==4.4.2
+langchain-openai==1.1.9

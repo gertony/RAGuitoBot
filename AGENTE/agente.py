@@ -165,10 +165,29 @@ def _limitador():
     return InMemoryRateLimiter(requests_per_second=rpm / 60, check_every_n_seconds=0.1, max_bucket_size=1)
 
 
+def chat_openrouter(modelo, reintentos=2, timeout=60, rate_limiter=None, max_tokens=None):
+    """Modelo servido por OpenRouter (API compatible con OpenAI, pago por uso).
+
+    OPENROUTER_PROVEEDOR fija qué proveedor atiende la solicitud (por defecto «groq», el mismo de la línea base),
+    sin pasar a otro si falla, para que los resultados sigan siendo comparables. Vacío = que OpenRouter elija.
+    """
+    from langchain_openai import ChatOpenAI
+    clave = os.environ.get("OPENROUTER_API_KEY")
+    if not clave:
+        raise RuntimeError("Falta la variable de entorno OPENROUTER_API_KEY (clave de openrouter.ai)")
+    orden = [p.strip() for p in os.environ.get("OPENROUTER_PROVEEDOR", "groq").split(",") if p.strip()]
+    extra = {"provider": {"order": orden, "allow_fallbacks": False}} if orden else None
+    return ChatOpenAI(model=modelo, base_url="https://openrouter.ai/api/v1", api_key=clave, temperature=0,
+                      max_retries=reintentos, timeout=timeout, rate_limiter=rate_limiter, max_tokens=max_tokens,
+                      extra_body=extra)
+
+
 def crear_llm(modelo=None):
-    """LLM generador. LLM_PROVEEDOR=gemini (por defecto) o groq (respaldo: modelos Llama, Tabla 6 de la tesis).
+    """LLM generador. LLM_PROVEEDOR=gemini (por defecto), groq u openrouter (Tabla 6 de la tesis).
 
     Se agregó Groq el 28/10/2026 porque gemini-3.8-flash devolvía 503 (servicio saturado) en el plan gratuito.
+    Se agregó OpenRouter el 20/11/2026 porque el plan de pago de Groq no admitía nuevas altas y el plan
+    gratuito (8 000 tokens por minuto) limitaba la carga a unos 4 usuarios y RAGAS a una cuota diaria.
     """
     proveedor = os.environ.get("LLM_PROVEEDOR", "gemini").lower()
     reintentos = int(os.environ.get("LLM_REINTENTOS", "2"))
@@ -182,6 +201,9 @@ def crear_llm(modelo=None):
         if not nombre:
             raise RuntimeError("Define GROQ_MODEL con un modelo de tu cuenta (lístalos con: python listar_modelos.py)")
         return ChatGroq(model=nombre, temperature=0, max_retries=reintentos, timeout=timeout, rate_limiter=limitador)
+    if proveedor == "openrouter":
+        return chat_openrouter(modelo or os.environ.get("OPENROUTER_MODEL", "openai/gpt-oss-120b"),
+                               reintentos=reintentos, timeout=timeout, rate_limiter=limitador)
     from langchain_google_genai import ChatGoogleGenerativeAI
     if not os.environ.get("GOOGLE_API_KEY"):
         raise RuntimeError("Falta la variable de entorno GOOGLE_API_KEY (clave de Google AI Studio)")

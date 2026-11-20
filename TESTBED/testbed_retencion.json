@@ -1,0 +1,220 @@
+[
+  {
+    "id": "H-P01",
+    "tipo": "personal",
+    "categoria": "promedio",
+    "estudiante_id": "EST0059",
+    "pregunta": "oe, ¿cuánto llevo de promedio?",
+    "ground_truth": "Su promedio ponderado total es 13,12, calculado sobre 3 semestres calificados. El del último semestre (2023-II) es 12,77.",
+    "fuentes_esperadas": [
+      "promedio_ponderado"
+    ],
+    "ruta_esperada": "personal",
+    "revisado": false,
+    "origen_ground_truth": "calculado con consultas.py sobre academico.db (20/11/2026)"
+  },
+  {
+    "id": "H-P02",
+    "tipo": "personal",
+    "categoria": "avance",
+    "estudiante_id": "EST0011",
+    "pregunta": "¿cuántos créditos me faltan pa acabar la carrera?",
+    "ground_truth": "Le faltan 173 créditos: tiene 41 de 214 créditos aprobados (19,2 %).",
+    "fuentes_esperadas": [
+      "avance_curricular"
+    ],
+    "ruta_esperada": "personal",
+    "revisado": false,
+    "origen_ground_truth": "calculado con consultas.py sobre academico.db (20/11/2026)"
+  },
+  {
+    "id": "H-P03",
+    "tipo": "personal",
+    "categoria": "notas",
+    "estudiante_id": "EST0024",
+    "pregunta": "¿jalé algún curso el semestre pasado?",
+    "ground_truth": "No. En el semestre 2023-II aprobó las 9 asignaturas que llevó; la nota más baja fue 12 (Actividad Productiva, Historia y Filosofía de la Educación, Didáctica General y Sistemas Digitales I).",
+    "fuentes_esperadas": [
+      "notas_periodo"
+    ],
+    "ruta_esperada": "personal",
+    "revisado": false,
+    "origen_ground_truth": "calculado con consultas.py sobre academico.db (20/11/2026)"
+  },
+  {
+    "id": "H-P04",
+    "tipo": "personal",
+    "categoria": "horario",
+    "estudiante_id": "EST0046",
+    "pregunta": "¿qué me toca el miércoles?",
+    "ground_truth": "El miércoles tiene Sistemas de Control Automático de 11:00 a 14:00 en el aula T-702 y Desarrollo del Pensamiento Científico y Tecnológico de 18:00 a 19:00 en el aula T-707.",
+    "fuentes_esperadas": [
+      "horario"
+    ],
+    "ruta_esperada": "personal",
+    "revisado": false,
+    "origen_ground_truth": "calculado con consultas.py sobre academico.db (20/11/2026)"
+  },
+  {
+    "id": "H-P05",
+    "tipo": "personal",
+    "categoria": "prerrequisitos",
+    "estudiante_id": "EST0005",
+    "pregunta": "¿puedo llevar circuitos 3 el otro ciclo?",
+    "ground_truth": "No. Para matricularse en Circuitos Electrónicos III (TEEI0646) le falta aprobar el prerrequisito Circuitos Electrónicos II (TEEI0538).",
+    "fuentes_esperadas": [
+      "puede_llevar"
+    ],
+    "ruta_esperada": "personal",
+    "revisado": false,
+    "origen_ground_truth": "calculado con consultas.py sobre academico.db (20/11/2026)"
+  },
+  {
+    "id": "H-N01",
+    "tipo": "normativa",
+    "categoria": "repitencia",
+    "estudiante_id": null,
+    "pregunta": "si jalo un curso 3 veces, ¿me botan de la u?",
+    "ground_truth": "No lo retiran de inmediato: si desaprueba la misma asignatura tres veces, es separado temporalmente de la universidad por un año; al volver solo puede matricularse en esa asignatura y luego retorna de forma regular. Si la desaprueba por cuarta vez, procede su retiro definitivo (art. 282 del Reglamento General de la UNE).",
+    "fuentes_esperadas": [
+      "Reglamento General UNE, art. 282"
+    ],
+    "ruta_esperada": "normativa",
+    "revisado": false,
+    "origen_ground_truth": "Reglamento General UNE, art. 282 (normativa_une_consolidada.jsonl)"
+  },
+  {
+    "id": "H-N02",
+    "tipo": "normativa",
+    "categoria": "cambio de programa",
+    "estudiante_id": null,
+    "pregunta": "¿qué piden para cambiarme de programa de estudios dentro de mi facultad?",
+    "ground_truth": "El cambio de programa es por única vez y exige aprobar 88 créditos en cuatro semestres académicos, tener un promedio ponderado mínimo de 16 y obtener una vacante en estricto orden de mérito; las vacantes no superan el 20 % de las de cada proceso de admisión (art. 285.2 del Reglamento General de la UNE).",
+    "fuentes_esperadas": [
+      "Reglamento General UNE, art. 285"
+    ],
+    "ruta_esperada": "normativa",
+    "revisado": false,
+    "origen_ground_truth": "Reglamento General UNE, art. 285.2"
+  },
+  {
+    "id": "H-N03",
+    "tipo": "normativa",
+    "categoria": "promedio",
+    "estudiante_id": null,
+    "pregunta": "¿cómo sacan el promedio ponderado total?",
+    "ground_truth": "Cada asignatura pondera como créditos por nota; el promedio de cada semestre se obtiene a partir de esas ponderaciones y el promedio ponderado total es la suma de los promedios semestrales dividida entre el número de semestres cursados, con dos decimales (art. 293 del Reglamento General de la UNE).",
+    "fuentes_esperadas": [
+      "Reglamento General UNE, art. 293"
+    ],
+    "ruta_esperada": "normativa",
+    "revisado": false,
+    "origen_ground_truth": "Reglamento General UNE, art. 293"
+  },
+  {
+    "id": "H-N04",
+    "tipo": "normativa",
+    "categoria": "orden de mérito",
+    "estudiante_id": null,
+    "pregunta": "¿quiénes entran al orden de mérito y qué les dan a los primeros?",
+    "ground_truth": "Entran los estudiantes de la promoción que cursaron los diez semestres sin desaprobar ninguna asignatura. Los dos primeros puestos de cada programa reciben una resolución de Facultad y la medalla de Bronce Flor de La Cantuta en acto público, y quedan exonerados del pago de matrícula del semestre siguiente (art. 294 del Reglamento General de la UNE).",
+    "fuentes_esperadas": [
+      "Reglamento General UNE, art. 294"
+    ],
+    "ruta_esperada": "normativa",
+    "revisado": false,
+    "origen_ground_truth": "Reglamento General UNE, art. 294"
+  },
+  {
+    "id": "H-N05",
+    "tipo": "normativa",
+    "categoria": "convalidación",
+    "estudiante_id": null,
+    "pregunta": "si vengo trasladado de otra universidad, ¿me convalidan los cursos?",
+    "ground_truth": "Sí puede pedirse: la Facultad convalida las asignaturas de los estudiantes trasladados según los créditos y el contenido de los sílabos, conforme a un reglamento específico (art. 287 del Reglamento General de la UNE).",
+    "fuentes_esperadas": [
+      "Reglamento General UNE, art. 287"
+    ],
+    "ruta_esperada": "normativa",
+    "revisado": false,
+    "origen_ground_truth": "Reglamento General UNE, art. 287"
+  },
+  {
+    "id": "H-M01",
+    "tipo": "mixta",
+    "categoria": "repitencia",
+    "estudiante_id": "EST0070",
+    "pregunta": "jalé lenguaje 1 tres veces, ¿qué me pasa ahora?",
+    "ground_truth": "Desaprobó Lenguaje y Comunicación I tres veces y figura como separado temporalmente (suspendido) desde 2023-II. Según el art. 282, la separación dura un año; al volver solo podrá matricularse en Lenguaje y Comunicación I, y si la desaprueba por cuarta vez procede su retiro definitivo.",
+    "fuentes_esperadas": [
+      "desaprobados",
+      "estado_matricula",
+      "Reglamento General UNE, art. 282"
+    ],
+    "ruta_esperada": "mixta",
+    "revisado": false,
+    "origen_ground_truth": "calculado con consultas.py sobre academico.db (20/11/2026) + art. 282"
+  },
+  {
+    "id": "H-M02",
+    "tipo": "mixta",
+    "categoria": "cambio de programa",
+    "estudiante_id": "EST0034",
+    "pregunta": "¿me puedo cambiar de programa con mis notas?",
+    "ground_truth": "No por ahora. Cumple los créditos (153 aprobados en 7 semestres; el reglamento pide 88 en cuatro), pero su promedio ponderado total es 12,48 y el art. 285.2 exige un mínimo de 16, además de obtener vacante por orden de mérito.",
+    "fuentes_esperadas": [
+      "avance_curricular",
+      "promedio_ponderado",
+      "Reglamento General UNE, art. 285"
+    ],
+    "ruta_esperada": "mixta",
+    "revisado": false,
+    "origen_ground_truth": "calculado con consultas.py sobre academico.db (20/11/2026) + art. 285.2"
+  },
+  {
+    "id": "H-M03",
+    "tipo": "mixta",
+    "categoria": "orden de mérito",
+    "estudiante_id": "EST0037",
+    "pregunta": "¿puedo entrar al orden de mérito de mi promoción?",
+    "ground_truth": "No. Desaprobó una vez Lenguaje y Comunicación I, Proceso Histórico del Perú y del Mundo y Circuitos Electrónicos II (ya las aprobó), y el art. 294 solo considera a quienes cursaron los diez semestres sin desaprobar ninguna asignatura.",
+    "fuentes_esperadas": [
+      "desaprobados",
+      "Reglamento General UNE, art. 294"
+    ],
+    "ruta_esperada": "mixta",
+    "revisado": false,
+    "origen_ground_truth": "calculado con consultas.py sobre academico.db (20/11/2026) + art. 294"
+  },
+  {
+    "id": "H-M04",
+    "tipo": "mixta",
+    "categoria": "promedio",
+    "estudiante_id": "EST0008",
+    "pregunta": "¿por qué mi promedio total sale 12,36?",
+    "ground_truth": "Porque el promedio ponderado total es la media de sus promedios semestrales (art. 293.2.2): 12,27 en 2023-I y 12,45 en 2023-II, que dan 12,36.",
+    "fuentes_esperadas": [
+      "promedio_ponderado",
+      "Reglamento General UNE, art. 293"
+    ],
+    "ruta_esperada": "mixta",
+    "revisado": false,
+    "origen_ground_truth": "calculado con consultas.py sobre academico.db (20/11/2026) + art. 293"
+  },
+  {
+    "id": "H-M05",
+    "tipo": "mixta",
+    "categoria": "traslado interno",
+    "estudiante_id": "EST0045",
+    "pregunta": "¿ya me puedo pasar a otra facultad?",
+    "ground_truth": "Todavía no. Tiene 40 de 214 créditos aprobados en 2 semestres y un promedio de 12,69; el traslado interno (art. 285.1) exige 88 créditos aprobados en cuatro semestres, promedio ponderado mínimo de 16 y obtener vacante por orden de mérito, y se concede por única vez.",
+    "fuentes_esperadas": [
+      "avance_curricular",
+      "promedio_ponderado",
+      "Reglamento General UNE, art. 285"
+    ],
+    "ruta_esperada": "mixta",
+    "revisado": false,
+    "origen_ground_truth": "calculado con consultas.py sobre academico.db (20/11/2026) + art. 285.1"
+  }
+]

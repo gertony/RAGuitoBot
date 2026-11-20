@@ -69,11 +69,19 @@ def llm_evaluador():
     como limitación). qwen/qwen3.8-27b se descartó: su límite gratuito es de 1 000 tokens de salida por minuto.
     """
     proveedor = os.environ.get("EVAL_PROVEEDOR", "gemini").lower()
+    # gpt-oss gasta tokens en razonar antes de responder; con el límite por defecto algunas respuestas largas
+    # quedaban cortadas (LLMDidNotFinishException → Faithfulness NaN en P10, N02, N05 y M05). Se sube el tope.
+    max_tokens = int(os.environ.get("EVAL_MAX_TOKENS", "8192"))
     if proveedor == "groq":
         from langchain_groq import ChatGroq
         modelo = os.environ.get("EVAL_MODEL", "openai/gpt-oss-20b")
         extra = {"reasoning_format": "hidden"} if "qwen" in modelo.lower() else {}  # que el "pensamiento" no rompa el JSON
-        return ChatGroq(model=modelo, temperature=0, max_retries=3, timeout=120, **extra)
+        return ChatGroq(model=modelo, temperature=0, max_retries=3, timeout=120, max_tokens=max_tokens, **extra)
+    if proveedor == "openrouter":
+        sys.path.insert(0, str(RAIZ / "AGENTE"))
+        from agente import chat_openrouter
+        return chat_openrouter(os.environ.get("EVAL_MODEL", "openai/gpt-oss-20b"), reintentos=3, timeout=120,
+                               max_tokens=max_tokens)
     from langchain_google_genai import ChatGoogleGenerativeAI
     if not os.environ.get("GOOGLE_API_KEY"):
         sys.exit("Falta GOOGLE_API_KEY para el evaluador Gemini (o usa EVAL_PROVEEDOR=groq).")

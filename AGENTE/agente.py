@@ -117,6 +117,30 @@ PROMPT_ROUTER = ChatPromptTemplate.from_messages([
     ("human", "{pregunta}"),
 ])
 
+# Enrutador v2 (20/11/2026): el LLM clasifica todas las consultas. Motivo: las reglas acertaban 35/35 en el testbed
+# con el que se calibraron, pero 5/15 en un conjunto nuevo escrito antes de este cambio (sobreajuste). Los ejemplos
+# del prompt son propios: no salen del testbed ni del conjunto de retención.
+PROMPT_ROUTER_V2 = ChatPromptTemplate.from_messages([
+    ("system",
+     "Clasificas la consulta de un estudiante universitario según de dónde sale la respuesta. Responde SOLO un JSON "
+     "con la clave \"ruta\".\n"
+     "- \"personal\": la respuesta es un dato propio del estudiante en el registro académico (sus notas, promedio, "
+     "créditos, avance, horario, cursos, estado de matrícula o si cumple un prerrequisito del plan).\n"
+     "- \"normativa\": la respuesta está en el reglamento, la ley universitaria o el plan de estudios, y es la misma "
+     "para cualquier estudiante. Las preguntas en primera persona que plantean una situación hipotética (\"si me "
+     "pasa X, ¿qué ocurre?\") o piden requisitos generales son normativas.\n"
+     "- \"mixta\": para responder hay que comparar los datos del estudiante con una norma (¿cumplo?, ¿me alcanza?, "
+     "¿qué me pasa a mí con lo que tengo?), o explicar un dato suyo con una regla.\n\n"
+     "Ejemplos:\n"
+     "\"¿en qué aula tengo clase el jueves?\" -> {{\"ruta\": \"personal\"}}\n"
+     "\"¿cuánto saqué en el examen de física?\" -> {{\"ruta\": \"personal\"}}\n"
+     "\"si me enfermo, ¿puedo justificar una falta?\" -> {{\"ruta\": \"normativa\"}}\n"
+     "\"¿cada cuánto se eligen los delegados estudiantiles?\" -> {{\"ruta\": \"normativa\"}}\n"
+     "\"con mis notas, ¿me alcanza para pedir una beca?\" -> {{\"ruta\": \"mixta\"}}\n"
+     "\"ya acabé todos mis cursos, ¿qué me falta para titularme?\" -> {{\"ruta\": \"mixta\"}}"),
+    ("human", "{pregunta}"),
+])
+
 # ------------------------------------------------------------------ prompt de generación
 PROMPT = ChatPromptTemplate.from_messages([
     ("system",
@@ -220,6 +244,9 @@ class Agente:
         self.llm = llm or crear_llm()
         self.registrar = registrar
         self.cadena_router = PROMPT_ROUTER | self.llm | StrOutputParser()
+        self.cadena_router_v2 = PROMPT_ROUTER_V2 | self.llm | StrOutputParser()
+        # ROUTER_MODO=reglas (línea base de la tesis: reglas + desempate con el LLM) o llm (v2, 20/11/2026)
+        self.modo_router = os.environ.get("ROUTER_MODO", "reglas").lower()
         # Orquestación LCEL: router -> recuperación -> prompt -> LLM -> texto
         self.recuperacion = RunnableLambda(self._enrutar) | RunnableLambda(self._recuperar)
         self.generacion = PROMPT | self.llm | StrOutputParser()
@@ -229,9 +256,28 @@ class Agente:
         self._lock = threading.Lock()
 
     # -- pasos de la cadena
+    def _ruta_llm(self, pregunta):
+        salida = self.cadena_router_v2.invoke({"pregunta": pregunta})
+        ruta = json.loads(re.search(r"\{.*\}", salida, re.S).group())["ruta"]
+        if ruta not in ("personal", "normativa", "mixta"):
+            raise ValueError(f"ruta desconocida: {ruta}")
+        return ruta
+
     def _enrutar(self, x):
         r = router_reglas(x["pregunta"], self.a)
-        if r["ruta"] is None:  # desempate con el LLM
+        if self.modo_router == "llm":  # v2: el LLM decide la ruta; las reglas aportan intenciones, curso y día
+            try:
+                r["ruta"], r["router"] = self._ruta_llm(x["pregunta"]), "llm-v2"
+            except Exception:
+                r["router"] = "reglas (llm-v2 fallido)"
+                if r["ruta"] is None:
+                    r["ruta"] = "normativa"
+            if r["ruta"] == "normativa":
+                r["intenciones"] = []
+            elif not r["intenciones"] or r["intenciones"] == ["resumen"]:
+                # sin un dato concreto pedido: ficha general; en las mixtas, también su historial de desaprobados
+                r["intenciones"] = ["resumen"] + (["desaprobados"] if r["ruta"] == "mixta" else [])
+        elif r["ruta"] is None:  # desempate con el LLM
             try:
                 salida = self.cadena_router.invoke({"pregunta": x["pregunta"]})
                 r["ruta"] = json.loads(re.search(r"\{.*\}", salida, re.S).group())["ruta"]

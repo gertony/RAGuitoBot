@@ -471,7 +471,7 @@
     "categoria": "bachiller_egresado",
     "estudiante_id": "EST0061",
     "pregunta": "¿Ya cumplo los requisitos para tramitar el bachiller?",
-    "ground_truth": "Cumple el requisito de haber aprobado los estudios de pregrado: aprobó los 214 de 214 créditos del plan. Además, debe acreditar el conocimiento de un idioma extranjero, de preferencia inglés, o de una lengua nativa; ese dato no figura en su registro académico.",
+    "ground_truth": "Sí. Aprobó los 214 de 214 créditos del plan y concluyó sus estudios en 2023-I, dentro de los años académicos 2020 a 2023. Por la excepción del bachillerato automático (Quinta Disposición Complementaria del Reglamento General de la UNE; Décima Cuarta Disposición Complementaria Transitoria de la Ley 30220, incorporada por la Ley 31183 y ampliada por la Ley 31359), puede solicitar el grado de Bachiller en forma automática, exonerado de los demás requisitos del numeral 45.1 del artículo 45 (idioma extranjero y trabajo de investigación).",
     "fuentes_esperadas": [
       "avance_curricular",
       "RG UNE art. 125.1"

@@ -1,0 +1,44 @@
+"""Recuperación v2 (20/11/2026): sinónimos estudiantiles (D-01), BM25 para la búsqueda híbrida y D-12."""
+import sys
+from pathlib import Path
+
+import pytest
+
+RAIZ = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(RAIZ / "AGENTE"))
+sys.path.insert(0, str(RAIZ / "CHROMADB2"))
+import agente  # noqa: E402
+
+
+def test_normalizar_agrega_terminos_sin_borrar_la_pregunta():
+    q = agente.normalizar_consulta("si jalo un curso 3 veces, ¿me botan de la u?")
+    assert q.startswith("si jalo un curso 3 veces")
+    for termino in ("desaprobar", "tres veces", "retiro definitivo", "universidad"):
+        assert termino in q
+
+
+def test_normalizar_no_toca_una_pregunta_formal():
+    q = "¿Cuál es la nota mínima para aprobar un curso?"
+    assert agente.normalizar_consulta(q) == q
+
+
+def test_bm25_prioriza_el_documento_con_las_palabras_exactas():
+    docs = ["La reserva de matrícula se solicita por un semestre.",
+            "La desmatrícula procede dentro de las cuatro primeras semanas del semestre.",
+            "El promedio ponderado se calcula con los créditos."]
+    assert agente._BM25(docs).ranking("¿cuándo procede la desmatrícula?", 3)[0] == 1
+
+
+def test_disposiciones_se_separan_del_ultimo_articulo():
+    ix = pytest.importorskip("indexar_normativa", reason="requiere las dependencias del indexador")
+    unidad = {"documento": "Reglamento General UNE", "articulo": "381", "titulo": "Órgano de control", "fuente": "x",
+              "pagina": 1, "texto": "Artículo 381. Órgano de control\nTexto del artículo.\n"
+              "DISPOSICIONES COMPLEMENTARIAS, TRANSITORIAS Y FINALES\n"
+              "PRIMERA: Plazo de adecuación\nTexto uno.\n"
+              "QUINTA: Excepción para la obtención del bachillerato automático\nTexto cinco."}
+    salida = ix.separar_disposiciones([unidad])
+    assert salida[0]["articulo"] == "381" and "PRIMERA" not in salida[0]["texto"]
+    quinta = next(u for u in salida if u["articulo"] == "DCTF-5")
+    assert quinta["titulo"].startswith("Quinta disposición complementaria transitoria y final: Excepción")
+    assert "Texto cinco." in quinta["texto"] and "Texto uno." not in quinta["texto"]
+

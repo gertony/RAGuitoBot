@@ -158,22 +158,111 @@ PROMPT = ChatPromptTemplate.from_messages([
 
 
 # ------------------------------------------------------------------ componentes
+# Expresiones estudiantiles que el índice no conoce (D-01). Origen: frases de la prueba de usuarios del 31/10/2026
+# («jalé un curso», «cómo voy en la u», «3 veces»), no las preguntas del testbed. Se AGREGAN términos a la búsqueda.
+SINONIMOS = [
+    (r"\bjal(o|e|ar|as|aste|ado|ada|amos|e)\b", "desaprobar desaprobación"),
+    (r"\bbot(an|aron|ar|en|aran)\b", "separado retiro definitivo"),
+    (r"\bla u\b", "universidad"),
+    (r"\bprofe\b", "docente"),
+    (r"\bciclo\b", "semestre académico"),
+]
+CIFRAS = {"1": "una", "2": "dos", "3": "tres", "4": "cuatro", "5": "cinco"}
+VACIAS = set("a al como con de del el en es la las lo los me mi mis o para por que se si su sus te tu un una y "
+             "cual cuales cuando donde puedo tengo hay pasa".split())
+
+
+def normalizar_consulta(pregunta):
+    p = _plano(pregunta)
+    extra = [t for pat, t in SINONIMOS if re.search(pat, p)]
+    extra += [f"{CIFRAS[n]} veces" for n in re.findall(r"\b([1-5])\s*(?:veces|vez)\b", p)]
+    return pregunta + (" " + " ".join(extra) if extra else "")
+
+
+def _tokens(texto):
+    return [w for w in _plano(texto).split() if len(w) > 1 and w not in VACIAS]
+
+
+class _BM25:
+    """BM25 (Robertson y Zaragoza, 2009) sobre los mismos fragmentos de ChromaDB, sin dependencias nuevas."""
+
+    def __init__(self, documentos, k1=1.5, b=0.75):
+        import math
+        from collections import Counter
+        self.k1, self.b = k1, b
+        self.tf = [Counter(_tokens(d)) for d in documentos]
+        self.largo = [sum(t.values()) for t in self.tf]
+        self.medio = sum(self.largo) / max(len(self.largo), 1)
+        df = Counter(w for t in self.tf for w in t)
+        n = len(documentos)
+        self.idf = {w: math.log(1 + (n - f + 0.5) / (f + 0.5)) for w, f in df.items()}
+
+    def ranking(self, consulta, n):
+        q = _tokens(consulta)
+        puntajes = []
+        for i, tf in enumerate(self.tf):
+            s = sum(self.idf.get(w, 0) * tf[w] * (self.k1 + 1) /
+                    (tf[w] + self.k1 * (1 - self.b + self.b * self.largo[i] / self.medio)) for w in q if w in tf)
+            if s > 0:
+                puntajes.append((s, i))
+        return [i for _, i in sorted(puntajes, reverse=True)[:n]]
+
+
 class BuscadorNormativa:
-    def __init__(self, ruta_chroma=CHROMA_POR_DEFECTO, modelo=MODELO_EMB, embedding=None):
+    """Recuperación normativa. Por defecto, la de la tesis: búsqueda densa e5, k = 4.
+
+    Opciones (20/11/2026, se miden con EVALUACION/evaluar_recuperacion.py antes de adoptarlas):
+      RECUPERACION=hibrido  densa + BM25 fusionadas con Reciprocal Rank Fusion (Cormack et al., 2009)
+      NORMALIZAR=1          agrega sinónimos estudiantiles y cifras en palabras a la consulta (D-01)
+      K_NORMATIVA=6         fragmentos que se entregan al LLM
+      CHROMA_RUTA=...       índice alternativo (p. ej. CHROMADB2/chroma_e5_v2, con el D-12 corregido)
+    """
+
+    def __init__(self, ruta_chroma=None, modelo=MODELO_EMB, embedding=None, modo=None, normalizar=None, k=None):
         import chromadb
-        if not Path(ruta_chroma).exists():
+        ruta_chroma = Path(ruta_chroma or os.environ.get("CHROMA_RUTA") or CHROMA_POR_DEFECTO)
+        if not ruta_chroma.is_absolute() and not ruta_chroma.exists():
+            ruta_chroma = RAIZ / ruta_chroma
+        if not ruta_chroma.exists():
             raise FileNotFoundError(f"No se encontró el índice de ChromaDB: {ruta_chroma}")
         self.col = chromadb.PersistentClient(path=str(ruta_chroma)).get_collection("normativa")
         if embedding is None:
             from sentence_transformers import SentenceTransformer
             m = SentenceTransformer(modelo)
             pref = "query: " if "e5" in modelo.lower() else ""
-            embedding = lambda t: m.encode([pref + t], normalize_embeddings=True).tolist()[0]
+            embedding = lambda t: m.encode([pref + t], normalize_embeddings=True).tolist()[0]  # noqa: E731
         self.embedding = embedding
+        self.modo = (modo or os.environ.get("RECUPERACION", "denso")).lower()
+        self.normalizar = normalizar if normalizar is not None else os.environ.get("NORMALIZAR", "0") == "1"
+        self.k = int(k or os.environ.get("K_NORMATIVA", K_NORMATIVA))
+        self._bm25 = None
 
-    def buscar(self, pregunta, k=K_NORMATIVA):
-        r = self.col.query(query_embeddings=[self.embedding(pregunta)], n_results=k)
-        return [doc for doc in r["documents"][0]]
+    def _corpus(self):
+        if self._bm25 is None:
+            todo = self.col.get(include=["documents", "metadatas"])
+            self._docs, self._metas = todo["documents"], todo["metadatas"]
+            self._bm25 = _BM25(self._docs)
+        return self._bm25
+
+    def buscar_con_meta(self, pregunta, k=None):
+        k = k or self.k
+        consulta = normalizar_consulta(pregunta) if self.normalizar else pregunta
+        n = k if self.modo != "hibrido" else max(4 * k, 20)
+        r = self.col.query(query_embeddings=[self.embedding(consulta)], n_results=n)
+        densos = list(zip(r["documents"][0], r["metadatas"][0]))
+        if self.modo != "hibrido":
+            return densos[:k]
+        bm25 = self._corpus()
+        lexicos = [(self._docs[i], self._metas[i]) for i in bm25.ranking(consulta, n)]
+        puntaje = {}
+        for lista in (densos, lexicos):
+            for pos, (doc, meta) in enumerate(lista):
+                d, _ = puntaje.get(doc, (0.0, meta))
+                puntaje[doc] = (d + 1 / (60 + pos + 1), meta)
+        return [(doc, meta) for doc, (_, meta) in sorted(puntaje.items(), key=lambda x: -x[1][0])[:k]]
+
+    def buscar(self, pregunta, k=None):
+        return [doc for doc, _ in self.buscar_con_meta(pregunta, k)]
 
 
 def _limitador():

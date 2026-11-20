@@ -83,7 +83,10 @@ def leer_ley(ruta):
     for n, t in paginas:
         inicio_pag.append((len(texto), n))
         texto += t + "\n"
-    marcas = list(RE_ART.finditer(texto))
+    # Los «Artículo N» citados dentro de las disposiciones modificatorias (D. Leg. 882, Ley 26271) no son artículos de
+    # la Ley 30220: el corte por artículos termina donde empiezan las disposiciones, que se separan después (D-12).
+    limite = texto.find("DISPOSICIONES COMPLEMENTARIAS")
+    marcas = [m for m in RE_ART.finditer(texto) if limite < 0 or m.start() < limite]
     unidades = []
     for k, m in enumerate(marcas):
         fin = marcas[k + 1].start() if k + 1 < len(marcas) else len(texto)
@@ -111,6 +114,66 @@ def leer_diapositivas(ruta):
         unidades.append({"documento": titulo, "articulo": "", "titulo": f"Diapositiva {i}",
                          "fuente": "Facultad de Tecnología, UNE", "pagina": i, "texto": t})
     return unidades
+
+
+# ---------------------------------------------------------------- disposiciones complementarias (D-12, 20/11/2026)
+# El consolidado del Reglamento y el PDF de la Ley traen las disposiciones complementarias pegadas al último
+# artículo (381 y 133). Indexadas así, el agente citaba «art. 381» o «art. 133» al usar, por ejemplo, la excepción
+# del bachillerato automático. Se separa cada disposición en una unidad propia, rotulada con su nombre real.
+ORDINALES = ["PRIMERA", "SEGUNDA", "TERCERA", "CUARTA", "QUINTA", "SEXTA", "SÉPTIMA", "OCTAVA", "NOVENA", "DÉCIMA"]
+RE_GRUPO = re.compile(r"(?m)^\s*DISPOSICI(?:ONES|ÓN) COMPLEMENTARIAS?\b[^\n]*$")
+RE_ORDINAL = re.compile(r"(?m)^\s*((?:DÉCIMA|DECIMA)\s+)?(" + "|".join(ORDINALES) + r"|SEPTIMA|DECIMA)\s*[.:]\s*([^\n]*)$")
+
+
+def _numero(decima, ordinal):
+    base = 10 if decima else 0
+    o = ordinal.replace("SEPTIMA", "SÉPTIMA").replace("DECIMA", "DÉCIMA")
+    return base + (ORDINALES.index(o) + 1 if o != "DÉCIMA" else 10)
+
+
+def _singular(grupo):
+    """«disposiciones complementarias transitorias» -> «disposición complementaria transitoria»."""
+    for pl, sg in [("disposiciones", "disposición"), ("complementarias", "complementaria"),
+                   ("transitorias", "transitoria"), ("modificatorias", "modificatoria"), ("finales", "final")]:
+        grupo = grupo.replace(pl, sg)
+    return grupo.replace(",", "")
+
+
+def _codigo(grupo):
+    """Código corto y estable para el id: DCT (transitorias), DCM, DCF, DCTF (transitorias y finales), DCD."""
+    return "DC" + "".join(c for palabra, c in [("transitori", "T"), ("modificatori", "M"), ("final", "F"),
+                                                ("derogatori", "D")] if palabra in grupo)
+
+
+def separar_disposiciones(unidades):
+    salida = []
+    for u in unidades:
+        grupos = list(RE_GRUPO.finditer(u["texto"]))
+        if not grupos or u["documento"] == PLAN:
+            salida.append(u)
+            continue
+        cuerpo = u["texto"][:grupos[0].start()].strip()
+        if cuerpo:
+            salida.append(dict(u, texto=cuerpo))
+        for g, m in enumerate(grupos):
+            fin_grupo = grupos[g + 1].start() if g + 1 < len(grupos) else len(u["texto"])
+            nombre_grupo = re.sub(r"\s+", " ", m.group(0)).strip().rstrip(",").lower()
+            bloque = u["texto"][m.end():fin_grupo]
+            items = list(RE_ORDINAL.finditer(bloque))
+            singular = _singular(nombre_grupo)
+            if not items:  # «DISPOSICIÓN COMPLEMENTARIA DEROGATORIA» o el título general de la sección
+                if len(bloque.strip()) > 120:
+                    salida.append(dict(u, articulo=_codigo(nombre_grupo), disposicion=True,
+                                       titulo=singular.capitalize(), texto=limpiar(m.group(0) + bloque)))
+                continue
+            for k, it in enumerate(items):
+                fin = items[k + 1].start() if k + 1 < len(items) else len(bloque)
+                n = _numero(it.group(1), it.group(2).upper())
+                ordinal = ((it.group(1) or "") + it.group(2)).lower().replace("decima", "décima").replace("septima", "séptima")
+                titulo = f"{ordinal.capitalize()} {singular}: {it.group(3).strip(' .*')}"
+                salida.append(dict(u, articulo=f"{_codigo(nombre_grupo)}-{n}", disposicion=True, titulo=titulo[:160],
+                                   texto=limpiar(bloque[it.start():fin])))
+    return salida
 
 
 ROMANOS = {"I": 1, "II": 2, "III": 3, "IV": 4, "V": 5, "VI": 6, "VII": 7, "VIII": 8, "IX": 9, "X": 10}
@@ -204,7 +267,9 @@ def fragmentar(unidades):
                                              separators=["\n\n", "\n", ". ", " ", ""])
     fragmentos = []
     for u in unidades:
-        if u["documento"] == PLAN:
+        if u.get("disposicion"):
+            cab = f"[{u['documento']} | {u['titulo']}]"
+        elif u["documento"] == PLAN:
             cab = f"[{u['documento']} | {u['titulo']}" + (f" ({u['articulo']})" if u["articulo"] else "") + "]"
         else:
             cab = f"[{u['documento']}" + (f" | Art. {u['articulo']}. {u['titulo']}" if u["articulo"] else f" | {u['titulo']}") + "]"
@@ -320,7 +385,7 @@ if __name__ == "__main__":
     if a.solo_probar:
         col = chromadb.PersistentClient(path=a.db).get_collection(COLECCION)
     else:
-        unidades = leer_consolidado(a.consolidado) + leer_ley(a.ley)
+        unidades = separar_disposiciones(leer_consolidado(a.consolidado) + leer_ley(a.ley))
         for f in a.fatec:
             unidades += leer_diapositivas(f)
         if a.plan:

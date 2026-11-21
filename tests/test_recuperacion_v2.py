@@ -67,3 +67,18 @@ def test_intenciones_coloquiales():
     r = agente.router_reglas("estoy llevando lenguaje 1 por tercera vez, ¿qué me pasa si no la paso?", a)
     assert r["ruta"] == "mixta" and "desaprobados" in r["intenciones"]
     assert agente.router_reglas("Si desapruebo Física I por tercera vez, ¿qué pasa?", a)["ruta"] == "normativa"
+
+
+def test_cursos_disponibles_proximo_semestre():
+    import consultas
+    a = consultas.Academico()
+    for q in ("que cursos puedo llevar el siguiente semestre?", "¿qué cursos tengo disponibles para 2024-II?"):
+        r = agente.router_reglas(q, a)
+        assert "disponibles" in r["intenciones"] and "en_curso" not in r["intenciones"], q
+    assert "disponibles" not in agente.router_reglas("¿puedo llevar circuitos 3 el otro ciclo?", a)["intenciones"]
+    d = a.cursos_disponibles("EST0030")
+    aprobados = a._aprobados("EST0030")
+    assert d["datos"]["ya"] and all(a.prereq.get(c, set()) <= aprobados for c in d["datos"]["ya"])
+    assert not set(d["datos"]["ya"]) & aprobados
+    assert "en que" in agente._plano("¿en qué año estoy?")
+    assert "estado" in agente.router_reglas("¿en qué año estoy?", a)["intenciones"]

@@ -63,8 +63,10 @@ INTENCIONES = [  # (intención, patrón); se evalúan todas y se acumulan
                  r"cursos llevo|llevo (ahorita|ahora|actualmente)|estoy cursando"),
     ("horario", r"horario|clases|me toca|a que hora|hora (entro|salgo)"),
     ("puede_llevar", r"puedo (matricularme|llevar)"),
+    ("disponibles", r"(que|cuales) (cursos|asignaturas|materias) (puedo|me toca|tengo disponibles?|hay disponibles?)|"
+                    r"(cursos|asignaturas|materias) disponibles|puedo llevar (el|en el) (siguiente|proximo|otro)"),
     ("desaprobados", r"desaprob|repit|volviendo a llevar|varias veces|otra vez"),  # "si desapruebo" (hipótesis) no es dato propio
-    ("estado", r"matriculad[oa] este|estado|situacion|en que ciclo"),
+    ("estado", r"matriculad[oa] este|estado|situacion|en que (ciclo|semestre|ano)\b"),
     ("avance_bachiller", r"cumplo .*bachiller|tramitar el bachiller"),
 ]
 
@@ -88,6 +90,10 @@ def router_reglas(pregunta, academico):
             intenciones = []  # contenido del curso: está en la sumilla (ChromaDB), no en la base
         else:
             intenciones = ["nota_curso"]
+    if curso and "disponibles" in intenciones:
+        intenciones.remove("disponibles")  # pregunta por un curso concreto: basta puede_llevar
+    if "disponibles" in intenciones and "en_curso" in intenciones:
+        intenciones.remove("en_curso")  # «¿qué cursos tengo disponibles?» no pide los que lleva ahora
     if "avance" in intenciones and "en_curso" in intenciones and re.search(r"aprobados", p):
         intenciones.remove("en_curso")
     if "desaprobados" in intenciones and "estado" not in intenciones:
@@ -425,6 +431,7 @@ class Agente:
                 else:
                     f = {"promedio": self.a.promedio_ponderado, "avance": self.a.avance_curricular,
                          "notas_periodo": self.a.notas_periodo, "en_curso": self.a.cursos_en_curso,
+                         "disponibles": self.a.cursos_disponibles,
                          "desaprobados": self.a.desaprobados, "estado": self.a.estado_matricula,
                          "resumen": self.a.resumen}.get(i)
                     if f:

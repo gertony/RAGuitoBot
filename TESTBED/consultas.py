@@ -241,6 +241,33 @@ class Academico:
                  + self.prerrequisitos(codigo)["texto"])
         return {"datos": {"codigo": codigo, "puede": veredicto, "motivo": motivo, "faltan": faltan}, "texto": texto}
 
+    def cursos_disponibles(self, eid, maximo=12):
+        """Asignaturas que puede matricular el próximo semestre (RF-18 general, sin nombrar un curso).
+
+        Se separan las que ya puede llevar (prerrequisitos aprobados) de las que se habilitan solo si aprueba lo
+        que cursa ahora. Se listan primero las de ciclos más bajos (las atrasadas), hasta `maximo`.
+        """
+        e = self._estudiante(eid)
+        if e["estado"] in ("egresado", "retirado", "suspendido"):
+            return {"datos": {"ya": [], "si_aprueba": []},
+                    "texto": f"El estudiante {eid} no puede matricularse el próximo semestre: su estado es '{e['estado']}'."}
+        aprob = self._aprobados(eid)
+        en_curso = set(self.cursos_en_curso(eid)["datos"]["cursos"])
+        pendientes = [c for c in self.cursos.values() if c["codigo"] not in aprob and c["codigo"] not in en_curso
+                      and not c["electivo"]]
+        ya = [c for c in pendientes if self.prereq.get(c["codigo"], set()) <= aprob]
+        si_aprueba = [c for c in pendientes if c not in ya and self.prereq.get(c["codigo"], set()) <= aprob | en_curso]
+        orden = lambda cs: sorted(cs, key=lambda c: (c["ciclo"], c["nombre"]))[:maximo]  # noqa: E731
+        fmt = lambda cs: "; ".join(f"{c['nombre']} (ciclo {c['ciclo']}, {c['creditos']:.0f} cr)" for c in orden(cs))  # noqa: E731
+        texto = (f"Asignaturas obligatorias que el estudiante {eid} puede matricular el próximo semestre "
+                 f"(prerrequisitos ya aprobados; {len(ya)} en total, se listan las de ciclos más bajos): "
+                 f"{fmt(ya) or 'ninguna'}.")
+        if si_aprueba:
+            texto += (f" Se habilitan además solo si aprueba las asignaturas que cursa ahora: {fmt(si_aprueba)}.")
+        texto += " Las electivas dependen de su grupo electivo y no se listan aquí."
+        return {"datos": {"ya": [c["codigo"] for c in orden(ya)], "si_aprueba": [c["codigo"] for c in orden(si_aprueba)]},
+                "texto": texto}
+
     def desaprobados(self, eid):
         cuenta, ult = defaultdict(int), {}
         for m in self._matriculas(eid):

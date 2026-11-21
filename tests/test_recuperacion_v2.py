@@ -42,3 +42,28 @@ def test_disposiciones_se_separan_del_ultimo_articulo():
     assert quinta["titulo"].startswith("Quinta disposición complementaria transitoria y final: Excepción")
     assert "Texto cinco." in quinta["texto"] and "Texto uno." not in quinta["texto"]
 
+
+
+def test_retiro_de_un_curso_se_traduce_a_desmatricula():
+    assert "desmatrícula" in agente.normalizar_consulta("¿Puedo retirarme de un curso después de matricularme?")
+    assert "desmatrícula" in agente.normalizar_consulta("Si me retiro de Seminario de Tesis, ¿sigo siendo regular?")
+    assert "desmatrícula" not in agente.normalizar_consulta("¿Qué pasa si me retiro de la universidad?")
+
+
+def test_jalar_conjugaciones():
+    for q in ("Jalé física", "me jalaron en cálculo", "si jalo un curso", "estoy jalando", "jalado tres veces"):
+        assert "desaprobar" in agente.normalizar_consulta(q), q
+    assert "desaprobar" not in agente.normalizar_consulta("jalea de fresa")
+
+
+def test_intenciones_coloquiales():
+    import consultas
+    a = consultas.Academico()
+    casos = {"¿qué me toca el miércoles?": "horario", "¿a qué hora entro el jueves?": "horario",
+             "¿qué cursos llevo ahorita?": "en_curso", "¿puedo llevar circuitos 3 el otro ciclo?": "puede_llevar"}
+    for q, intencion in casos.items():
+        assert intencion in agente.router_reglas(q, a)["intenciones"], q
+    assert a.buscar_curso("circuitos 3") == "TEEI0646" and a.buscar_curso("lenguaje 1") == "ACFB0101"
+    r = agente.router_reglas("estoy llevando lenguaje 1 por tercera vez, ¿qué me pasa si no la paso?", a)
+    assert r["ruta"] == "mixta" and "desaprobados" in r["intenciones"]
+    assert agente.router_reglas("Si desapruebo Física I por tercera vez, ¿qué pasa?", a)["ruta"] == "normativa"

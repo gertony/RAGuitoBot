@@ -14,9 +14,12 @@ import statistics
 import time
 from pathlib import Path
 
-from agente import Agente
+from dotenv import load_dotenv
 
 CARPETA = Path(__file__).resolve().parent            # RAGASTESIS/AGENTE: aquí se guardan los resultados
+load_dotenv(CARPETA.parent / ".env")                 # proveedor, claves, ROUTER_MODO, CHROMA_RUTA, NORMALIZAR
+
+from agente import Agente  # noqa: E402  (después de cargar el .env)
 TESTBED = CARPETA.parent / "TESTBED" / "testbed.json"
 
 
@@ -26,6 +29,8 @@ def main():
     ap.add_argument("--salida", default=str(CARPETA / "resultados_testbed.jsonl"))
     ap.add_argument("--pausa", type=float, default=6.0, help="segundos entre preguntas (cuota gratuita)")
     ap.add_argument("--solo", nargs="*", help="ids a correr, p. ej. P01 N02 M01")
+    ap.add_argument("--sesion", default=None, help="estudiante en sesión para las preguntas normativas (en la app "
+                    "siempre hay uno); sin este argumento se reproduce la línea base, que las corría sin estudiante")
     args = ap.parse_args()
 
     testbed = json.load(open(args.testbed, encoding="utf-8"))
@@ -41,7 +46,7 @@ def main():
     agente = Agente()
     for n, t in enumerate(pendientes, start=1):
         try:
-            r = agente.responder(t["estudiante_id"], t["pregunta"])
+            r = agente.responder(t["estudiante_id"] or args.sesion, t["pregunta"])
         except Exception as e:  # cuota agotada, red, etc.: se guarda lo avanzado y se puede reanudar
             print(f"\n✗ Error en {t['id']}: {e}\nLo avanzado quedó guardado. Vuelve a correr el script para continuar.")
             break

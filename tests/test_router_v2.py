@@ -66,3 +66,13 @@ def test_union_si_coinciden_usa_esa_ruta(monkeypatch):
                        registrar=False)
     x = ag._enrutar({"pregunta": "¿Cuál es mi promedio ponderado?", "estudiante_id": "EST0030"})
     assert (x["ruta"], x["router"]) == ("personal", "union (coinciden)")
+
+
+def test_union_discrepancia_sin_dato_concreto_decide_el_llm(monkeypatch):
+    # «mi facultad» es solo un pronombre: no hay dato propio que consultar, así que no se trae la ficha
+    monkeypatch.setenv("ROUTER_MODO", "union")
+    ag = agente.Agente(llm=FakeListChatModel(responses=['{"ruta": "normativa"}']), buscador=SinNormativa(),
+                       registrar=False)
+    x = ag._enrutar({"pregunta": "¿qué piden para cambiarme de programa de estudios dentro de mi facultad?",
+                     "estudiante_id": "EST0030"})
+    assert x["ruta"] == "normativa" and x["intenciones"] == [] and x["router"].startswith("union (llm decide")

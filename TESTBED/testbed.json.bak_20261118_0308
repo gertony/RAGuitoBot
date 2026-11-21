@@ -1,0 +1,516 @@
+[
+  {
+    "id": "P01",
+    "tipo": "personal",
+    "categoria": "estado",
+    "estudiante_id": "EST0041",
+    "pregunta": "¿Estoy matriculado este ciclo?",
+    "ground_truth": "Sí. Está matriculado como estudiante regular en el periodo 2024-I, en el ciclo 10.",
+    "fuentes_esperadas": [
+      "estado_matricula"
+    ],
+    "ruta_esperada": "personal",
+    "revisado": true,
+    "origen_ground_truth": "calculado con consultas.py sobre academico.db"
+  },
+  {
+    "id": "P02",
+    "tipo": "personal",
+    "categoria": "estado",
+    "estudiante_id": "EST0061",
+    "pregunta": "¿Cuál es mi situación académica actual?",
+    "ground_truth": "Es egresado: concluyó el plan de estudios en el periodo 2023-I.",
+    "fuentes_esperadas": [
+      "estado_matricula"
+    ],
+    "ruta_esperada": "personal",
+    "revisado": true,
+    "origen_ground_truth": "calculado con consultas.py sobre academico.db"
+  },
+  {
+    "id": "P03",
+    "tipo": "personal",
+    "categoria": "estado",
+    "estudiante_id": "EST0065",
+    "pregunta": "¿En qué estado está mi matrícula?",
+    "ground_truth": "Su matrícula figura como retirada; su última matrícula fue en el periodo 2023-I, en el ciclo 4.",
+    "fuentes_esperadas": [
+      "estado_matricula"
+    ],
+    "ruta_esperada": "personal",
+    "revisado": true,
+    "origen_ground_truth": "calculado con consultas.py sobre academico.db"
+  },
+  {
+    "id": "P04",
+    "tipo": "personal",
+    "categoria": "promedio",
+    "estudiante_id": "EST0030",
+    "pregunta": "¿Cuál es mi promedio ponderado?",
+    "ground_truth": "Su promedio ponderado total es 12,64, calculado sobre 5 semestres.",
+    "fuentes_esperadas": [
+      "promedio_ponderado"
+    ],
+    "ruta_esperada": "personal",
+    "revisado": true,
+    "origen_ground_truth": "calculado con consultas.py sobre academico.db"
+  },
+  {
+    "id": "P05",
+    "tipo": "personal",
+    "categoria": "promedio",
+    "estudiante_id": "EST0028",
+    "pregunta": "¿Qué promedio ponderado tuve el semestre pasado?",
+    "ground_truth": "Su promedio ponderado del semestre 2023-II fue 12,52.",
+    "fuentes_esperadas": [
+      "promedio_ponderado"
+    ],
+    "ruta_esperada": "personal",
+    "revisado": true,
+    "origen_ground_truth": "calculado con consultas.py sobre academico.db"
+  },
+  {
+    "id": "P06",
+    "tipo": "personal",
+    "categoria": "promedio",
+    "estudiante_id": "EST0027",
+    "pregunta": "¿Cuál es mi promedio acumulado de toda la carrera?",
+    "ground_truth": "Su promedio ponderado total es 12,40, calculado sobre 5 semestres.",
+    "fuentes_esperadas": [
+      "promedio_ponderado"
+    ],
+    "ruta_esperada": "personal",
+    "revisado": true,
+    "origen_ground_truth": "calculado con consultas.py sobre academico.db"
+  },
+  {
+    "id": "P07",
+    "tipo": "personal",
+    "categoria": "avance",
+    "estudiante_id": "EST0021",
+    "pregunta": "¿Cuántos créditos tengo aprobados?",
+    "ground_truth": "Tiene 77 créditos aprobados de 214.",
+    "fuentes_esperadas": [
+      "avance_curricular"
+    ],
+    "ruta_esperada": "personal",
+    "revisado": true,
+    "origen_ground_truth": "calculado con consultas.py sobre academico.db"
+  },
+  {
+    "id": "P08",
+    "tipo": "personal",
+    "categoria": "avance",
+    "estudiante_id": "EST0019",
+    "pregunta": "¿Qué porcentaje de la carrera llevo avanzado?",
+    "ground_truth": "Lleva aprobado el 38,8 % de la carrera (83 de 214 créditos).",
+    "fuentes_esperadas": [
+      "avance_curricular"
+    ],
+    "ruta_esperada": "personal",
+    "revisado": true,
+    "origen_ground_truth": "calculado con consultas.py sobre academico.db"
+  },
+  {
+    "id": "P09",
+    "tipo": "personal",
+    "categoria": "avance",
+    "estudiante_id": "EST0054",
+    "pregunta": "¿Cuántos créditos me faltan para terminar la carrera?",
+    "ground_truth": "Le faltan 79 créditos (tiene 135 de 214).",
+    "fuentes_esperadas": [
+      "avance_curricular"
+    ],
+    "ruta_esperada": "personal",
+    "revisado": true,
+    "origen_ground_truth": "calculado con consultas.py sobre academico.db"
+  },
+  {
+    "id": "P10",
+    "tipo": "personal",
+    "categoria": "notas_periodo",
+    "estudiante_id": "EST0018",
+    "pregunta": "¿Qué notas saqué el ciclo pasado?",
+    "ground_truth": "En el periodo 2023-II obtuvo: Informática Educativa: 13 (aprobado); Lenguaje y Comunicación II: 15 (aprobado); Matemática Básica II: 13 (aprobado); Introducción a la Filosofía: 12 (aprobado); Realidad Regional y Nacional: 11 (aprobado); Pedagogía General: 13 (aprobado); Ética, Constitución y Derechos Humanos: 13 (aprobado); Dispositivos Electrónicos: 14 (aprobado); Programación: 12 (aprobado).",
+    "fuentes_esperadas": [
+      "notas_periodo"
+    ],
+    "ruta_esperada": "personal",
+    "revisado": true,
+    "origen_ground_truth": "calculado con consultas.py sobre academico.db"
+  },
+  {
+    "id": "P11",
+    "tipo": "personal",
+    "categoria": "notas_periodo",
+    "estudiante_id": "EST0040",
+    "pregunta": "¿Cómo me fue en el último semestre?",
+    "ground_truth": "En el periodo 2023-II obtuvo: Electrónica de Potencia I: 11 (aprobado); PPP Intensiva: 11 (aprobado); Taller de Tesis II: 11 (aprobado); Robótica: 9 (desaprobado); Programación Orientada a Objetos: 14 (aprobado); Formulación y Evaluación de Proyectos: 11 (aprobado).",
+    "fuentes_esperadas": [
+      "notas_periodo"
+    ],
+    "ruta_esperada": "personal",
+    "revisado": true,
+    "origen_ground_truth": "calculado con consultas.py sobre academico.db"
+  },
+  {
+    "id": "P12",
+    "tipo": "personal",
+    "categoria": "nota_curso",
+    "estudiante_id": "EST0016",
+    "pregunta": "¿Qué nota saqué en Inglés I?",
+    "ground_truth": "En Inglés I registra una matrícula: en 2022-II obtuvo 13 (aprobado).",
+    "fuentes_esperadas": [
+      "nota_curso"
+    ],
+    "ruta_esperada": "personal",
+    "revisado": true,
+    "origen_ground_truth": "calculado con consultas.py sobre academico.db"
+  },
+  {
+    "id": "P13",
+    "tipo": "personal",
+    "categoria": "nota_curso",
+    "estudiante_id": "EST0016",
+    "pregunta": "¿Aprobé Metodología del Trabajo Universitario?",
+    "ground_truth": "En Metodología del Trabajo Universitario registra 2 matrículas: en 2022-II obtuvo 7 (desaprobado); en 2023-I obtuvo 12 (aprobado).",
+    "fuentes_esperadas": [
+      "nota_curso"
+    ],
+    "ruta_esperada": "personal",
+    "revisado": true,
+    "origen_ground_truth": "calculado con consultas.py sobre academico.db"
+  },
+  {
+    "id": "P14",
+    "tipo": "personal",
+    "categoria": "nota_curso",
+    "estudiante_id": "EST0035",
+    "pregunta": "¿Cómo me fue en Sistemas de Comunicación Digital?",
+    "ground_truth": "En Sistemas de Comunicación Digital registra una matrícula: en 2023-II obtuvo 9 (desaprobado).",
+    "fuentes_esperadas": [
+      "nota_curso"
+    ],
+    "ruta_esperada": "personal",
+    "revisado": true,
+    "origen_ground_truth": "calculado con consultas.py sobre academico.db"
+  },
+  {
+    "id": "P15",
+    "tipo": "personal",
+    "categoria": "en_curso",
+    "estudiante_id": "EST0014",
+    "pregunta": "¿Qué cursos estoy llevando este ciclo?",
+    "ground_truth": "En 2024-I lleva 7 asignaturas: Realidad Regional y Nacional; Dispositivos Electrónicos; Proceso Histórico del Perú y del Mundo; Historia y Filosofía de la Educación; Didáctica General; Circuitos Electrónicos I; Sistemas Digitales I.",
+    "fuentes_esperadas": [
+      "cursos_en_curso"
+    ],
+    "ruta_esperada": "personal",
+    "revisado": true,
+    "origen_ground_truth": "calculado con consultas.py sobre academico.db"
+  },
+  {
+    "id": "P16",
+    "tipo": "personal",
+    "categoria": "en_curso",
+    "estudiante_id": "EST0015",
+    "pregunta": "¿Cuántos créditos llevo matriculados este semestre?",
+    "ground_truth": "Lleva 23 créditos en 8 asignaturas en el periodo 2024-I.",
+    "fuentes_esperadas": [
+      "cursos_en_curso"
+    ],
+    "ruta_esperada": "personal",
+    "revisado": true,
+    "origen_ground_truth": "calculado con consultas.py sobre academico.db"
+  },
+  {
+    "id": "P17",
+    "tipo": "personal",
+    "categoria": "horario",
+    "estudiante_id": "EST0033",
+    "pregunta": "¿Qué clases tengo el viernes?",
+    "ground_truth": "El viernes tiene: Sistemas de Control Automático de 11:00 a 14:00 en el aula T-702.",
+    "fuentes_esperadas": [
+      "horario"
+    ],
+    "ruta_esperada": "personal",
+    "revisado": true,
+    "origen_ground_truth": "calculado con consultas.py sobre academico.db"
+  },
+  {
+    "id": "P18",
+    "tipo": "personal",
+    "categoria": "prerrequisitos",
+    "estudiante_id": "EST0036",
+    "pregunta": "¿Qué requisito tiene el curso PPP Continua?",
+    "ground_truth": "PPP Continua tiene como prerrequisito: PPP Discontinua.",
+    "fuentes_esperadas": [
+      "prerrequisitos"
+    ],
+    "ruta_esperada": "personal",
+    "revisado": true,
+    "origen_ground_truth": "calculado con consultas.py sobre academico.db"
+  },
+  {
+    "id": "P19",
+    "tipo": "personal",
+    "categoria": "puede_llevar",
+    "estudiante_id": "EST0022",
+    "pregunta": "¿Puedo matricularme en Actividad Artística II el próximo ciclo?",
+    "ground_truth": "Sí puede matricularse en Actividad Artística II: ya aprobó su prerrequisito (Actividad Artística I).",
+    "fuentes_esperadas": [
+      "puede_llevar"
+    ],
+    "ruta_esperada": "personal",
+    "revisado": true,
+    "origen_ground_truth": "calculado con consultas.py sobre academico.db"
+  },
+  {
+    "id": "P20",
+    "tipo": "personal",
+    "categoria": "puede_llevar",
+    "estudiante_id": "EST0057",
+    "pregunta": "¿Puedo matricularme en Electrónica de Potencia II el próximo ciclo?",
+    "ground_truth": "No puede matricularse en Electrónica de Potencia II: le falta aprobar el prerrequisito Electrónica de Potencia I.",
+    "fuentes_esperadas": [
+      "puede_llevar"
+    ],
+    "ruta_esperada": "personal",
+    "revisado": true,
+    "origen_ground_truth": "calculado con consultas.py sobre academico.db"
+  },
+  {
+    "id": "N01",
+    "tipo": "normativa",
+    "categoria": "nota_aprobatoria",
+    "estudiante_id": null,
+    "pregunta": "¿Cuál es la nota mínima para aprobar un curso en pregrado?",
+    "ground_truth": "En pregrado la evaluación es vigesimal y la nota mínima aprobatoria es once (11).",
+    "fuentes_esperadas": [
+      "RG UNE art. 292"
+    ],
+    "ruta_esperada": "normativa",
+    "revisado": true,
+    "origen_ground_truth": "redactado a partir de la normativa; revisar contra el documento",
+    "validacion": "Validado por el autor contra el PDF original (28/10/2026)"
+  },
+  {
+    "id": "N02",
+    "tipo": "normativa",
+    "categoria": "repitencia",
+    "estudiante_id": null,
+    "pregunta": "¿Qué pasa si desapruebo la misma asignatura tres veces?",
+    "ground_truth": "Desaprobar la misma materia tres veces da lugar a la separación temporal del estudiante por un año. Al término de ese plazo solo puede matricularse en la asignatura que desaprobó, para retornar de manera regular en el ciclo siguiente. Si la desaprueba por cuarta vez, procede su retiro definitivo.",
+    "fuentes_esperadas": [
+      "RG UNE art. 282",
+      "Ley 30220 art. 102"
+    ],
+    "ruta_esperada": "normativa",
+    "revisado": true,
+    "origen_ground_truth": "redactado a partir de la normativa; revisar contra el documento",
+    "validacion": "Validado por el autor contra el PDF original (28/10/2026)"
+  },
+  {
+    "id": "N03",
+    "tipo": "normativa",
+    "categoria": "reserva",
+    "estudiante_id": null,
+    "pregunta": "¿Puedo reservar mi matrícula y por cuánto tiempo?",
+    "ground_truth": "Sí. Quien no pueda matricularse conserva sus derechos hasta por tres años consecutivos o alternos, previa solicitud al Decano de la Facultad. Concluido el plazo puede pedir la actualización de matrícula y debe adecuarse al plan de estudios vigente.",
+    "fuentes_esperadas": [
+      "RG UNE art. 289"
+    ],
+    "ruta_esperada": "normativa",
+    "revisado": true,
+    "origen_ground_truth": "redactado a partir de la normativa; revisar contra el documento",
+    "validacion": "Validado por el autor contra el PDF original (28/10/2026)"
+  },
+  {
+    "id": "N04",
+    "tipo": "normativa",
+    "categoria": "desmatricula",
+    "estudiante_id": null,
+    "pregunta": "¿Puedo retirarme de un curso después de matricularme?",
+    "ground_truth": "Sí, mediante la desmatrícula de una o más asignaturas, siempre que mantenga como mínimo 12 créditos para seguir siendo estudiante regular. La autoriza la Facultad por resolución, con informe del Director de la Escuela Profesional, dentro de los 30 días calendario de iniciadas las clases.",
+    "fuentes_esperadas": [
+      "RG UNE art. 290"
+    ],
+    "ruta_esperada": "normativa",
+    "revisado": true,
+    "origen_ground_truth": "redactado a partir de la normativa; revisar contra el documento",
+    "validacion": "Validado por el autor contra el PDF original (28/10/2026)"
+  },
+  {
+    "id": "N05",
+    "tipo": "normativa",
+    "categoria": "tope_creditos",
+    "estudiante_id": null,
+    "pregunta": "¿Cuál es el máximo de créditos en que me puedo matricular por semestre según el reglamento?",
+    "ground_truth": "Según el Reglamento General, el tope máximo es de veintidós (22) créditos por semestre.",
+    "fuentes_esperadas": [
+      "RG UNE art. 283"
+    ],
+    "ruta_esperada": "normativa",
+    "revisado": true,
+    "origen_ground_truth": "redactado a partir de la normativa; revisar contra el documento",
+    "validacion": "Validado por el autor contra el PDF original (28/10/2026)"
+  },
+  {
+    "id": "N06",
+    "tipo": "normativa",
+    "categoria": "rectificacion",
+    "estudiante_id": null,
+    "pregunta": "¿Hasta cuándo puedo hacer una rectificación de matrícula?",
+    "ground_truth": "La matrícula extemporánea y la rectificación de matrícula se realizan antes del inicio de clases, en las fechas del calendario académico, y no hay prórroga.",
+    "fuentes_esperadas": [
+      "RG UNE art. 288"
+    ],
+    "ruta_esperada": "normativa",
+    "revisado": true,
+    "origen_ground_truth": "redactado a partir de la normativa; revisar contra el documento",
+    "validacion": "Validado por el autor contra el PDF original (28/10/2026)"
+  },
+  {
+    "id": "N07",
+    "tipo": "normativa",
+    "categoria": "bachiller",
+    "estudiante_id": null,
+    "pregunta": "¿Qué requisitos necesito para obtener el grado de bachiller?",
+    "ground_truth": "Se requiere haber aprobado los estudios de pregrado y acreditar el conocimiento de un idioma extranjero, de preferencia inglés, o de una lengua nativa. Los estudios de pregrado incluyen un curso de trabajo de investigación en el último semestre.",
+    "fuentes_esperadas": [
+      "RG UNE art. 125.1 (mod. Res. 1887-2024-R-UNE)",
+      "Ley 30220 art. 45"
+    ],
+    "ruta_esperada": "normativa",
+    "revisado": true,
+    "origen_ground_truth": "redactado a partir de la normativa; revisar contra el documento",
+    "validacion": "Validado por el autor contra el PDF original (28/10/2026)"
+  },
+  {
+    "id": "N08",
+    "tipo": "normativa",
+    "categoria": "titulo",
+    "estudiante_id": null,
+    "pregunta": "¿Qué necesito para obtener el título profesional?",
+    "ground_truth": "Se requiere el grado académico de bachiller y la aprobación de una tesis o de un trabajo de suficiencia profesional. El título se otorga a quienes obtuvieron el bachiller en la UNE.",
+    "fuentes_esperadas": [
+      "RG UNE art. 125.2"
+    ],
+    "ruta_esperada": "normativa",
+    "revisado": true,
+    "origen_ground_truth": "redactado a partir de la normativa; revisar contra el documento",
+    "validacion": "Validado por el autor contra el PDF original (28/10/2026)"
+  },
+  {
+    "id": "N09",
+    "tipo": "normativa",
+    "categoria": "sumilla",
+    "estudiante_id": null,
+    "pregunta": "¿De qué trata el curso de Sistemas Digitales II?",
+    "ground_truth": "Es un curso teórico-práctico y obligatorio de 4 créditos. Desarrolla la capacidad de implementar sistemas lógicos secuenciales programados en VHDL y usando tarjetas FPGA. Sus contenidos incluyen lógica secuencial, flip-flops, contadores, máquinas de estado, registros, memorias, convertidores análogo-digital y digital-análogo, lenguaje ensamblador y aplicaciones en VHDL.",
+    "fuentes_esperadas": [
+      "Plan de estudios, sumilla TEEI0539"
+    ],
+    "ruta_esperada": "normativa",
+    "revisado": true,
+    "origen_ground_truth": "redactado a partir de la normativa; revisar contra el documento",
+    "validacion": "Validado por el autor contra el PDF original (28/10/2026)"
+  },
+  {
+    "id": "N10",
+    "tipo": "normativa",
+    "categoria": "electivos",
+    "estudiante_id": null,
+    "pregunta": "¿Cuántos cursos electivos debo llevar en el séptimo ciclo?",
+    "ground_truth": "En el VII ciclo el estudiante elige y se matricula en un solo curso electivo de especialidad, de 2 créditos.",
+    "fuentes_esperadas": [
+      "Plan de estudios, reglas de matrícula (VII ciclo)"
+    ],
+    "ruta_esperada": "normativa",
+    "revisado": true,
+    "origen_ground_truth": "redactado a partir de la normativa; revisar contra el documento",
+    "validacion": "Validado por el autor contra el PDF original (28/10/2026)"
+  },
+  {
+    "id": "M01",
+    "tipo": "mixta",
+    "categoria": "repitencia_282",
+    "estudiante_id": "EST0069",
+    "pregunta": "Desaprobé Lenguaje y Comunicación I varias veces, ¿qué consecuencia tiene eso para mí?",
+    "ground_truth": "Desaprobó Lenguaje y Comunicación I 3 veces. Según el Reglamento General, la desaprobación de una misma materia por tres veces da lugar a la separación temporal por un año; al término de ese plazo solo podrá matricularse en esa asignatura y, si la desaprueba por cuarta vez, procede su retiro definitivo. Su estado actual es suspendido (separado temporalmente).",
+    "fuentes_esperadas": [
+      "desaprobados",
+      "estado_matricula",
+      "RG UNE art. 282"
+    ],
+    "ruta_esperada": "mixta",
+    "revisado": true,
+    "origen_ground_truth": "dato calculado + regla redactada a partir de la normativa; revisar",
+    "validacion": "Validado por el autor contra el PDF original (28/10/2026)"
+  },
+  {
+    "id": "M02",
+    "tipo": "mixta",
+    "categoria": "repitencia_riesgo",
+    "estudiante_id": "EST0054",
+    "pregunta": "Estoy volviendo a llevar Sistemas de Telecomunicaciones. ¿Qué pasa si la desapruebo otra vez?",
+    "ground_truth": "Ya desaprobó Sistemas de Telecomunicaciones 1 vez y la está cursando de nuevo. Si la desaprueba otra vez acumularía 2. Según el Reglamento General, a la tercera desaprobación de una misma materia corresponde la separación temporal por un año, y a la cuarta, el retiro definitivo. Le quedaría una sola desaprobación antes de la separación.",
+    "fuentes_esperadas": [
+      "desaprobados",
+      "cursos_en_curso",
+      "RG UNE art. 282"
+    ],
+    "ruta_esperada": "mixta",
+    "revisado": true,
+    "origen_ground_truth": "dato calculado + regla redactada a partir de la normativa; revisar",
+    "validacion": "Validado por el autor contra el PDF original (28/10/2026)"
+  },
+  {
+    "id": "M03",
+    "tipo": "mixta",
+    "categoria": "bachiller_egresado",
+    "estudiante_id": "EST0061",
+    "pregunta": "¿Ya cumplo los requisitos para tramitar el bachiller?",
+    "ground_truth": "Cumple el requisito de haber aprobado los estudios de pregrado: aprobó los 214 de 214 créditos del plan. Además, debe acreditar el conocimiento de un idioma extranjero, de preferencia inglés, o de una lengua nativa; ese dato no figura en su registro académico.",
+    "fuentes_esperadas": [
+      "avance_curricular",
+      "RG UNE art. 125.1"
+    ],
+    "ruta_esperada": "mixta",
+    "revisado": true,
+    "origen_ground_truth": "dato calculado + regla redactada a partir de la normativa; revisar",
+    "validacion": "Validado por el autor contra el PDF original (28/10/2026)"
+  },
+  {
+    "id": "M04",
+    "tipo": "mixta",
+    "categoria": "desmatricula_regular",
+    "estudiante_id": "EST0027",
+    "pregunta": "Si me retiro de Seminario de Tesis, ¿sigo siendo estudiante regular?",
+    "ground_truth": "Lleva 17 créditos; Seminario de Tesis tiene 3, así que le quedarían 14. El reglamento exige mantener como mínimo 12 créditos para seguir siendo regular, por lo que sí seguiría siendo regular. La desmatrícula debe solicitarse dentro de los 30 días calendario de iniciadas las clases.",
+    "fuentes_esperadas": [
+      "cursos_en_curso",
+      "RG UNE art. 290"
+    ],
+    "ruta_esperada": "mixta",
+    "revisado": true,
+    "origen_ground_truth": "dato calculado + regla redactada a partir de la normativa; revisar",
+    "validacion": "Validado por el autor contra el PDF original (28/10/2026)"
+  },
+  {
+    "id": "M05",
+    "tipo": "mixta",
+    "categoria": "tope_creditos",
+    "estudiante_id": "EST0041",
+    "pregunta": "¿Cuántos créditos estoy llevando y cuál es el máximo que permite el reglamento?",
+    "ground_truth": "Lleva 14 créditos en el periodo 2024-I. El Reglamento General fija un tope máximo de 22 créditos por semestre, por lo que su carga está dentro de ese tope.",
+    "fuentes_esperadas": [
+      "cursos_en_curso",
+      "RG UNE art. 283"
+    ],
+    "ruta_esperada": "mixta",
+    "revisado": true,
+    "origen_ground_truth": "dato calculado + regla redactada a partir de la normativa; revisar",
+    "validacion": "Validado por el autor contra el PDF original (28/10/2026)"
+  }
+]

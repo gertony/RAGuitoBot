@@ -71,17 +71,27 @@ class Academico:
         contenidos = [(len(nom), cod) for nom, cod in self._indice.items() if f" {nom} " in f" {n} "]
         if contenidos:
             return max(contenidos)[1]
-        # 2) parecido aproximado (errores de tipeo, nombres incompletos)
+        # 2) nombre abreviado con su número: "circuitos 3" = Circuitos Electrónicos III, "lenguaje 1" =
+        #    Lenguaje y Comunicación I. Solo si la abreviatura apunta a un único curso (si no, sigue la búsqueda).
+        palabras = n.split()
+        abreviados = {cod for nom, cod in self._indice.items()
+                      if len(nom.split()) > 2 and nom.split()[-1] in ROMANOS.values()
+                      and any(palabras[i] == nom.split()[0] and palabras[i + 1] == nom.split()[-1]
+                              for i in range(len(palabras) - 1))}
+        if len(abreviados) == 1:
+            return abreviados.pop()
+        # 3) parecido aproximado (errores de tipeo, nombres incompletos)
         cerca = difflib.get_close_matches(n, self._indice.keys(), n=1, cutoff=0.6)
         if cerca:
             return self._indice[cerca[0]]
-        # 3) ventana de palabras del tamaño de cada nombre
-        palabras = n.split()
+        # 4) ventana de palabras del tamaño de cada nombre
         mejor, cod_mejor = 0.0, None
         for nom, cod in self._indice.items():
             k = len(nom.split())
             for i in range(max(1, len(palabras) - k + 1)):
                 r = difflib.SequenceMatcher(None, " ".join(palabras[i:i + k]), nom).ratio()
+                if k == 1:  # nombre de una palabra: más exigente («programa» de estudios ≠ Programación)
+                    r -= 0.1
                 if r > mejor:
                     mejor, cod_mejor = r, cod
         return cod_mejor if mejor >= 0.8 else None

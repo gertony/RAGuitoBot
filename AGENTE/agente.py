@@ -49,9 +49,9 @@ K_NORMATIVA = 4
 DIAS = ["lunes", "martes", "miercoles", "jueves", "viernes"]
 PERSONAL = r"\b(mi|mis|me|tengo|llevo|llevando|saque|aprobe|desaprobe|estoy|voy|puedo matricularme|puedo llevar|" \
            r"me falta|me faltan|me retiro|cumplo|sigo siendo|volviendo a llevar)\b"
-NORMATIVA = r"\b(reglamento|que pasa si|requisitos?|nota minima|reserv\w*|desmatricul\w*|retirarme|tope|maximo|" \
+NORMATIVA = r"\b(reglamento|que pasa si|que me pasa si|si no (la|lo) paso|requisitos?|nota minima|reserv\w*|desmatricul\w*|retirarme|tope|maximo|" \
             r"bachiller|titulo|de que trata|electivo\w*|rectificacion|extemporane\w*|separa\w*|consecuencia|" \
-            r"permite|segun|norma\w*|tres veces|cuarta vez|regular|prorroga|se aprueba|aprobar un|" \
+            r"permite|segun|norma\w*|tres veces|tercera vez|cuarta vez|regular|prorroga|se aprueba|aprobar un|" \
             r"que temas|contenidos?|sumilla|que se ve|que ve|que se necesita|que necesito)\b"
 SUMILLA = r"de que trata|que temas|contenidos?|sumilla|que se ve|que ve"
 INTENCIONES = [  # (intención, patrón); se evalúan todas y se acumulan
@@ -59,8 +59,9 @@ INTENCIONES = [  # (intención, patrón); se evalúan todas y se acumulan
     ("avance", r"creditos .*aprobados|porcentaje|avanzad|me faltan? .*terminar|avance|cuanto me falta"),
     ("notas_periodo", r"notas|ciclo pasado|semestre pasado|ultimo semestre|como me fue en el ultimo"),
     ("en_curso", r"estoy llevando|llevo (matriculad|este)|creditos (estoy )?llevando|cursos .*este (ciclo|semestre)|"
-                 r"que llevo|que cursos tengo|me retiro de|creditos llevo|mi carga|carga de creditos"),
-    ("horario", r"horario|clases"),
+                 r"que llevo|que cursos tengo|me retiro de|creditos llevo|mi carga|carga de creditos|"
+                 r"cursos llevo|llevo (ahorita|ahora|actualmente)|estoy cursando"),
+    ("horario", r"horario|clases|me toca|a que hora|hora (entro|salgo)"),
     ("puede_llevar", r"puedo (matricularme|llevar)"),
     ("desaprobados", r"desaprob|repit|volviendo a llevar|varias veces|otra vez"),  # "si desapruebo" (hipótesis) no es dato propio
     ("estado", r"matriculad[oa] este|estado|situacion|en que ciclo"),
@@ -77,6 +78,9 @@ def router_reglas(pregunta, academico):
     p = _plano(pregunta)
     curso = academico.buscar_curso(pregunta)
     intenciones = [n for n, pat in INTENCIONES if re.search(pat, p)]
+    # una pregunta personal que nombra un día de la semana pide el horario ("¿qué me toca el miércoles?")
+    if "horario" not in intenciones and re.search(PERSONAL, p) and any(re.search(rf"\b{d}\b", p) for d in DIAS):
+        intenciones.append("horario")
     if curso and not intenciones:
         if re.search(r"requisito", p) and not re.search(PERSONAL, p):
             intenciones = ["prerrequisitos"]
@@ -95,10 +99,12 @@ def router_reglas(pregunta, academico):
     es_personal = bool(intenciones) or (bool(re.search(PERSONAL, p)) and not es_normativa)
     # una pregunta personal "pura" sobre un dato no necesita normativa aunque contenga 'regular' o 'segun'
     if es_personal and es_normativa and intenciones and not re.search(
-            r"reglamento|que pasa si|consecuencia|requisitos|permite|tope|maximo|sigo siendo|bachiller|titulo|separa", p):
+            r"reglamento|que pasa si|que me pasa si|si no (la|lo) paso|consecuencia|requisitos|permite|tope|maximo|sigo siendo|bachiller|titulo|separa", p):
         es_normativa = False
     if es_personal and es_normativa:
         ruta = "mixta"
+        if re.search(r"\bveces\b|\bvez\b", p) and "desaprobados" not in intenciones:
+            intenciones += ["desaprobados", "estado"]  # repitencia (art. 282): hace falta su historial del curso
     elif es_personal:
         ruta = "personal"
     elif es_normativa:
@@ -161,11 +167,15 @@ PROMPT = ChatPromptTemplate.from_messages([
 # Expresiones estudiantiles que el índice no conoce (D-01). Origen: frases de la prueba de usuarios del 31/10/2026
 # («jalé un curso», «cómo voy en la u», «3 veces»), no las preguntas del testbed. Se AGREGAN términos a la búsqueda.
 SINONIMOS = [
-    (r"\bjal(o|e|ar|as|aste|ado|ada|amos|e)\b", "desaprobar desaprobación"),
+    (r"\bjal(?:o|ó|e|é|a|as|an|en|ar|aste|aron|ado|ada|ados|adas|amos|ando|ara|aran)\b", "desaprobar desaprobación"),
     (r"\bbot(an|aron|ar|en|aran)\b", "separado retiro definitivo"),
     (r"\bla u\b", "universidad"),
     (r"\bprofe\b", "docente"),
     (r"\bciclo\b", "semestre académico"),
+    # Término institucional: retirarse de una asignatura ya matriculada se llama «desmatrícula» (RG UNE, art. 290).
+    # Ajuste dirigido (20/11/2026) a partir del análisis de errores de N04 y M04 (D-03); se declara como tal.
+    (r"\bretir(?:o|arme|arse|arte|e|ar)\s+(?:de\s+)?(?:un|una|el|la|mi)?\s*(?:curso|asignatura|materia)", "desmatrícula"),
+    (r"\bme\s+retiro\s+de\s+(?!la\s+universidad|la\s+u\b|los\s+estudios)", "desmatrícula"),
 ]
 CIFRAS = {"1": "una", "2": "dos", "3": "tres", "4": "cuatro", "5": "cinco"}
 VACIAS = set("a al como con de del el en es la las lo los me mi mis o para por que se si su sus te tu un una y "
@@ -358,9 +368,15 @@ class Agente:
         if self.modo_router in ("llm", "union"):  # v2: el LLM decide; las reglas aportan intenciones, curso y día
             try:
                 ruta_llm = self._ruta_llm(x["pregunta"])
-                if self.modo_router == "union" and r["ruta"] not in (None, ruta_llm):
-                    # unión de fuentes: si reglas y LLM discrepan, se recuperan ambas (ante la duda, buscar en los dos)
+                concreta = [i for i in r["intenciones"] if i != "resumen"]
+                if self.modo_router == "union" and r["ruta"] not in (None, ruta_llm) and concreta:
+                    # unión de fuentes: si discrepan y las reglas vieron un dato propio concreto, se recuperan ambas
                     r["ruta"], r["router"] = "mixta", f"union (reglas={r['ruta']}, llm={ruta_llm})"
+                elif self.modo_router == "union" and r["ruta"] not in (None, ruta_llm):
+                    # discrepan pero las reglas solo vieron pronombres («mi», «me»): decide el LLM. Así una norma
+                    # preguntada en primera persona no arrastra la ficha del estudiante al contexto (ruido que bajaba
+                    # Context Precision en la corrida del 20/11; D-13)
+                    r["ruta"], r["router"] = ruta_llm, f"union (llm decide; reglas={r['ruta']} sin dato concreto)"
                 else:
                     r["ruta"], r["router"] = ruta_llm, ("union (coinciden)" if self.modo_router == "union" else "llm-v2")
             except Exception:

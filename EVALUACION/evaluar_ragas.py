@@ -44,6 +44,11 @@ from ragas.metrics import Faithfulness, LLMContextPrecisionWithReference, LLMCon
 
 CARPETA = Path(__file__).resolve().parent
 RAIZ = CARPETA.parent
+try:  # claves desde el .env (las variables ya definidas en la terminal tienen prioridad)
+    from dotenv import load_dotenv
+    load_dotenv(RAIZ / ".env")
+except ImportError:
+    pass
 METRICAS = ["faithfulness", "answer_relevancy", "context_precision", "context_recall"]
 UMBRAL, NEUPANE, JIMENEZ = 0.85, 0.96, 0.94
 
@@ -106,6 +111,11 @@ def resumen(filas):
     grupos = {"global": filas}
     for t in ("personal", "normativa", "mixta"):
         grupos[t] = [f for f in filas if f["tipo"] == t]
+    # corrida final ampliada: también por conjunto (H- retención, C- confirmación, el resto testbed)
+    conjunto = lambda i: "retencion" if str(i).startswith("H-") else "confirmacion" if str(i).startswith("C-") else "testbed"  # noqa: E731
+    if len({conjunto(f["id"]) for f in filas}) > 1:
+        for c in ("testbed", "retencion", "confirmacion"):
+            grupos[c] = [f for f in filas if conjunto(f["id"]) == c]
     for g, fs in grupos.items():
         medias = {}
         for m in METRICAS:
@@ -130,9 +140,11 @@ def main():
     ap.add_argument("--resultados", default=str(RAIZ / "AGENTE" / "resultados_testbed.jsonl"))
     ap.add_argument("--lote", type=int, default=5, help="pares por lote (se guarda al terminar cada lote)")
     ap.add_argument("--solo-resumen", action="store_true")
+    ap.add_argument("--etiqueta", default="", help="sufijo de los archivos de salida (p. ej. final): no pisa la línea base")
     args = ap.parse_args()
 
-    por_par = CARPETA / "ragas_por_par.csv"
+    suf = f"_{args.etiqueta}" if args.etiqueta else ""
+    por_par = CARPETA / f"ragas_por_par{suf}.csv"
     filas = [json.loads(l) for l in Path(args.resultados).read_text(encoding="utf-8").splitlines() if l.strip()]
     hechos = set(pd.read_csv(por_par)["id"]) if por_par.exists() else set()
     pendientes = [f for f in filas if f["id"] not in hechos]
@@ -169,7 +181,7 @@ def main():
         sys.exit("Aún no hay pares evaluados.")
     todos = pd.read_csv(por_par).drop_duplicates("id", keep="last").to_dict("records")
     r = resumen(todos)
-    r.to_csv(CARPETA / "ragas_resumen.csv", index=False, encoding="utf-8-sig")
+    r.to_csv(CARPETA / f"ragas_resumen{suf}.csv", index=False, encoding="utf-8-sig")
     print("\n== Resumen RAGAS")
     print(r[["grupo", "metrica", "n", "media", "de", "cumple_umbral_0.85"]].to_string(index=False))
     nulos = {m: sum(1 for f in todos if f.get(m) != f.get(m)) for m in METRICAS}

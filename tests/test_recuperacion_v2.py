@@ -203,3 +203,14 @@ def test_v5_ajustes_de_la_prueba_en_la_app_2(monkeypatch):
     assert not agente.es_seguimiento("¿cuál es mi promedio?")
     t = a.bloqueos_si_desaprueba("EST0001")["texto"]
     assert "[Cálculo I] es prerrequisito de: Cálculo II y Análisis de Circuitos Eléctricos" in t
+
+
+def test_d17_conteo_de_desaprobaciones_y_pronombre_de_seguimiento():
+    """D-17 (sesión de aceptación): el contexto dice cuántas veces desaprobó y «lo desapruebo» es un seguimiento."""
+    import consultas
+    a = consultas.Academico()
+    texto = a.nota_curso("EST0025", "ACFB0214")["texto"]  # Geografía General: 2 desaprobaciones y 1 aprobación
+    assert "Veces que desaprobó esta asignatura: 2" in texto and "desaprobación número 3" in texto
+    assert agente.es_seguimiento("que pasa si lo desapruebo de vuelta?")
+    assert agente.es_seguimiento("y si la jalo otra vez?")
+    assert not agente.es_seguimiento("¿Qué pasa si desapruebo la misma asignatura tres veces?")

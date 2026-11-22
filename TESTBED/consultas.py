@@ -194,8 +194,12 @@ class Academico:
                   else f"{m['periodo']}: en curso, sin nota" for m in intentos]
         datos = {"codigo": codigo, "intentos": [{"periodo": m["periodo"], "nota": m["nota"], "condicion": m["condicion"]}
                                                 for m in intentos]}
+        # D-17: el número de matrículas no es el número de desaprobaciones; se dan ambos explícitos
+        desap = sum(1 for m in intentos if m["nota"] is not None and m["condicion"] == "desaprobado")
         return {"datos": datos, "texto": f"Registro del estudiante {eid} en {c['nombre']} ({codigo}), "
-                                         f"{len(intentos)} matrícula(s): " + "; ".join(partes) + "."}
+                                         f"{len(intentos)} matrícula(s): " + "; ".join(partes) + "."
+                                         f" Veces que desaprobó esta asignatura: {desap}; si la desaprobara otra vez, "
+                                         f"sería su desaprobación número {desap + 1}."}
 
     def cursos_en_curso(self, eid):
         filas = [m for m in self._matriculas(eid) if m["condicion"] == "en curso"]

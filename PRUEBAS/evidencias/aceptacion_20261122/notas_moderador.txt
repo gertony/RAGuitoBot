@@ -1,0 +1,25 @@
+Sesión de aceptación RAGuitoBot · 22/11/2026, 17:25-17:47 · commit 51de8a0
+Participantes: 4 estudiantes de pregrado de la UCSM (2 Ing. de Sistemas, 1 Psicología, 1 Administración de Empresas), uno a la vez.
+Situaciones: A1 entrar · A2 consultar cómo le fue en un curso · A3 qué pasa si vuelve a desaprobar un curso · A4 salir.
+SA = sin ayuda · CA = con ayuda
+
+P01 | EST0032 | 17:30-17:38
+A1 SA · A2 CA (el primer mensaje no lo entendió; reformuló "dime que cursos llevé") · A3 CA · A4 SA
+Dijo: el primer mensaje demoró un poco más en cargar, los demás fueron rápidos; a veces da la fuente en el párrafo y abajo también aparece en "Fuentes consultadas".
+Conforme: sí · Le gustó: diseño simple
+
+P02 | EST0013
+A1 SA · A2 SA · A3: no le dijo de qué curso es prerrequisito Actividad Artística I; respondió que si lo desaprueba de nuevo procede el retiro · A4 CA (le costó ubicar el botón del menú lateral)
+Conforme: sí · Difícil: no · Cambiaría: búsqueda inversa de prerrequisitos · Inesperado: el diseño es algo simple, le gustaría más color
+
+P03 | EST0031
+A1 SA · A2 CA (3 intentos hasta obtener sus notas del semestre pasado) · A3 SA · A4 SA
+Conforme: a medias · Le gustó: respuestas relativamente rápidas · Difícil: formular preguntas, a veces no entiende si no eres muy específico · Cambiaría: memoria de chat para seguir respuestas
+Inesperado: preguntó por su mejor nota y le respondió con un premio que otorga la universidad
+
+P04 | EST0025
+A1 SA · A2 SA (demoró en pedir notas de los cursos actuales; al final respondió que aún no tiene) · A3 SA · A4 SA
+Conforme: sí · Le gustó: que entendió "jalar" · Difícil: no · Cambiaría: agilidad, más amigable, menos frío, diseño muy simple
+Inesperado: escribió "buenass" y respondió que no tiene esa información
+
+Revisión del registro (log_sesion.csv): P02 (id 352) y P04 (id 366) recibieron "cuarta desaprobación -> retiro definitivo"; era la tercera (separación temporal de un año) -> defecto D-17, corregido y repetido con respuesta correcta (repeticion_a_EST0025.png, repeticion_b_EST0013.png).

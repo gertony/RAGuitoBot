@@ -245,7 +245,10 @@ PROMPT_REESCRIBIR = ChatPromptTemplate.from_messages([
 ])
 
 
-REFERENCIA = r"\b(esos|esas|eso|ese|esa|estos|estas|ellos|ellas|lo anterior|cada uno)\b"
+REFERENCIA = (r"\b(esos|esas|eso|ese|esa|estos|estas|ellos|ellas|lo anterior|cada uno)\b"
+              # D-17: pronombre que apunta a un curso nombrado antes («¿qué pasa si lo desapruebo de vuelta?»)
+              r"|\b(lo|la|los|las) (vuelvo a )?"
+              r"(desapruebo|desapruebe|jalo|jale|repruebo|repruebe|llevo|lleve|apruebo|paso)\b")
 
 
 def es_seguimiento(pregunta):

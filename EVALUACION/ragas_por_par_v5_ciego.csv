@@ -1,0 +1,14 @@
+id,tipo,categoria,faithfulness,answer_relevancy,context_precision,context_recall
+B-P01,personal,prerrequisitos en curso,0.75,0.8304137439085882,0.9999999999,1.0
+B-P02,personal,mejor nota,1.0,0.9148981108651268,0.9999999999,1.0
+B-P03,personal,meta de promedio,,0.8981645647152909,0.9999999999,1.0
+B-P04,personal,peor nota,1.0,0.9020876061922762,0.9999999999,1.0
+B-P05,personal,notas iguales a 12,1.0,0.8336706755502958,0.9999999999,1.0
+B-P06,personal,créditos de los cursos en curso,0.5,0.8761790498943407,0.9999999999,1.0
+B-P07,personal,obligatorias en curso,1.0,0.973389241141918,0.9999999999,1.0
+B-M01,mixta,adelantar cursos,,0.8464530427718799,0.9999999999,0.3333333333333333
+B-N01,normativa,desaprobar varias asignaturas,1.0,0.8207309385991788,0.99999999995,0.5
+B-N02,normativa,nota aprobatoria,0.0,0.0,0.0,0.0
+B-N03,normativa,"promedio 11,50",0.0,0.0,0.49999999995,0.0
+B-N04,normativa,promedio ponderado,,0.9226296507859197,0.49999999995,0.5
+B-N05,normativa,inasistencias,0.0,0.0,0.3333333333,0.0

@@ -85,6 +85,17 @@ def test_cursos_disponibles_proximo_semestre():
     assert "estado" in agente.router_reglas("¿en qué año estoy?", a)["intenciones"]
 
 
+def test_d16_condicionadas_no_se_confunden_con_lo_que_cursa():
+    """D-16: el texto no debe sugerir que la asignatura condicionada se cursa ahora ni que condiciona a las demás."""
+    import consultas
+    a = consultas.Academico()
+    d = a.cursos_disponibles("EST0021")
+    assert d["datos"]["si_aprueba"]
+    assert "Se habilitan además" not in d["texto"] and "todavía no las cursa" in d["texto"]
+    en_curso = set(a.cursos_en_curso("EST0021")["datos"]["cursos"])
+    assert not set(d["datos"]["si_aprueba"]) & en_curso
+
+
 def test_jale_es_dato_propio_y_si_jalo_es_hipotesis():
     import consultas
     a = consultas.Academico()

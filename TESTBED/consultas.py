@@ -273,7 +273,9 @@ class Academico:
                  f"(prerrequisitos ya aprobados; {len(ya)} en total, se listan las de ciclos más bajos): "
                  f"{fmt(ya) or 'ninguna'}.")
         if si_aprueba:
-            texto += (f" Se habilitan además solo si aprueba las asignaturas que cursa ahora: {fmt(si_aprueba)}.")
+            texto += (" Además, el próximo semestre también podrá matricular las siguientes asignaturas, pero solo si "
+                      "aprueba este semestre el prerrequisito que está cursando ahora (todavía no las cursa): "
+                      f"{fmt(si_aprueba)}.")
         faltan_e, _, _ = self._electivas_pendientes(aprob, en_curso)
         abiertas = [(g, cs) for g, cs in faltan_e if not any(c["codigo"] in en_curso for c in cs)
                     and all(self.prereq.get(c["codigo"], set()) <= aprob for c in cs)]

@@ -1,4 +1,5 @@
 """Recuperación v2 (20/11/2026): sinónimos estudiantiles (D-01), BM25 para la búsqueda híbrida y D-12."""
+import re
 import sys
 from pathlib import Path
 
@@ -174,3 +175,20 @@ def test_v5_ajustes_de_la_prueba_en_la_app(monkeypatch):
     assert agente.router_reglas(q, a)["intenciones"] == ["bloqueos"]
     assert "primer semestre" in a.notas_extremas("EST0001")["texto"]
     assert "todavía no tienen nota" in a.notas_extremas("EST0030", semestre_actual=True)["texto"]
+
+
+def test_seguimiento_por_referencia_y_errata_en_mejor():
+    assert agente.es_seguimiento("dime cual el curso que me libera cada uno de esos cursos")
+    assert not agente.es_seguimiento("¿qué cursos que llevo son prerrequisitos de otros?")
+    assert re.search(dict(agente.INTENCIONES_V5)["extremos"], agente._plano("dime mi mejjor nota"))
+
+
+def test_v5_ajustes_de_la_prueba_en_la_app_2(monkeypatch):
+    import consultas
+    monkeypatch.setenv("EXTRAS_V5", "1")
+    a = consultas.Academico()
+    assert agente.router_reglas("dime mi mejjor nota este semestre", a)["intenciones"] == ["extremos"]
+    assert agente.es_seguimiento("dime cual el curso que me libera cada uno de esos cursos")
+    assert not agente.es_seguimiento("¿cuál es mi promedio?")
+    t = a.bloqueos_si_desaprueba("EST0001")["texto"]
+    assert "[Cálculo I] es prerrequisito de: Cálculo II y Análisis de Circuitos Eléctricos" in t

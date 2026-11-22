@@ -373,12 +373,14 @@ class Academico:
         for c in en:
             dep = sorted(k for k, v in self.prereq.items() if c in v)
             if dep:
-                partes.append(f"si desaprueba {self.cursos[c]['nombre']}, no podrá llevar "
-                              + ", ".join(self.cursos[d]["nombre"] for d in dep))
+                nombres = [self.cursos[d]["nombre"] for d in dep]
+                lista = nombres[0] if len(nombres) == 1 else ", ".join(nombres[:-1]) + " y " + nombres[-1]
+                partes.append(f"[{self.cursos[c]['nombre']}] es prerrequisito de: {lista}")
         if not partes:
             return {"datos": {}, "texto": f"Ninguna asignatura que cursa el estudiante {eid} es prerrequisito de otra."}
-        return {"datos": {}, "texto": f"Prerrequisitos en juego del estudiante {eid}: " + "; ".join(partes)
-                                      + ". Sus demás asignaturas en curso no son prerrequisito de otra."}
+        return {"datos": {}, "texto": f"Asignaturas que el estudiante {eid} cursa ahora y que son prerrequisito de otras "
+                                      f"(si desaprueba una, no podrá llevar las que habilita): " + "; ".join(partes)
+                                      + ". Sus demás asignaturas en curso no son prerrequisito de ninguna otra."}
 
     def desaprobados(self, eid):
         cuenta, ult = defaultdict(int), {}

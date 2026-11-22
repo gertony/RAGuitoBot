@@ -57,7 +57,7 @@ SUMILLA = r"de que trata|que temas|contenidos?|sumilla|que se ve|que ve"
 # Intenciones «v5» (21/11, después de la corrida v4): tipos de consulta que reveló el conjunto ciego. Se apagan con
 # EXTRAS_V5=0 para reproducir la v4 / medir la v4.1 sin ellas.
 INTENCIONES_V5 = [
-    ("extremos", r"(mejor|peor) nota|nota (mas alta|mas baja)"),
+    ("extremos", r"(mej+or|pe+or) nota|nota (mas alta|mas baja)"),
     ("notas_valor", r"(con|de) (nota|un|una) (\d{1,2})\b|(saque|tengo|obtuve) (\d{1,2}) en"),
     ("meta_promedio", r"(cuanto|cuantos puntos|que nota|que notas) necesito|necesito .*promedio|para (tener|sacar|llegar a) "
                       r"(un )?promedio"),
@@ -68,7 +68,8 @@ INTENCIONES_V5 = [
 ]
 # corrección de erratas de palabras clave (v5): solo contra este vocabulario, con un umbral alto
 VOCABULARIO = ("cursos curso desaprueban desapruebo desaprobar aprueban apruebo aprobar semestre matricula promedio "
-               "creditos nota notas reglamento asignatura asignaturas ciclo carrera horario requisitos").split()
+               "creditos nota notas reglamento asignatura asignaturas ciclo carrera horario requisitos mejor peor "
+               "prerrequisitos").split()
 INTENCIONES = [  # (intención, patrón); se evalúan todas y se acumulan
     ("promedio", r"promedio|\bpps\b|\bppa\b|\bppt\b"),
     ("pendientes", r"(que|cuales|cuantos|cuantas) (cursos|asignaturas|materias) (me faltan|tengo pendientes?|debo)|"
@@ -120,7 +121,8 @@ def router_reglas(pregunta, academico):
     curso = academico.buscar_curso(pregunta)
     intenciones = [n for n, pat in INTENCIONES if re.search(pat, p)]
     if extras_v5():
-        nuevas = [n for n, pat in INTENCIONES_V5 if re.search(pat, p)]
+        pc = corregir_erratas(p)  # «mejjor nota» → «mejor nota» (solo para las intenciones v5)
+        nuevas = [n for n, pat in INTENCIONES_V5 if re.search(pat, pc)]
         if nuevas:  # la consulta agregada reemplaza a las genéricas que se activan con las mismas palabras
             intenciones = [i for i in intenciones if i not in ("notas_periodo", "promedio", "en_curso", "puede_llevar",
                                                               "disponibles")] + nuevas
@@ -243,9 +245,14 @@ PROMPT_REESCRIBIR = ChatPromptTemplate.from_messages([
 ])
 
 
+REFERENCIA = r"\b(esos|esas|eso|ese|esa|estos|estas|ellos|ellas|lo anterior|cada uno)\b"
+
+
 def es_seguimiento(pregunta):
+    """«¿y en 2023-I?» o una pregunta corta que se refiere a lo anterior («¿qué curso libera cada uno de esos?»)."""
     p = " ".join(_plano(pregunta).split())
-    return bool(re.match(SEGUIMIENTO, p)) and len(p.split()) <= 10
+    return (bool(re.match(SEGUIMIENTO, p)) and len(p.split()) <= 10) or (
+        bool(re.search(REFERENCIA, p)) and len(p.split()) <= 15)
 
 
 # ------------------------------------------------------------------ prompt de generación

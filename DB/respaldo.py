@@ -2,7 +2,7 @@
 
 Copia en RESPALDOS/<AAAAMMDD_HHMMSS>/:
   academico.db     copia consistente con la API de respaldo de SQLite (sirve aunque la app esté abierta)
-  chroma_e5/       copia de la carpeta del índice normativo
+  chroma_e5/       copia de la carpeta del índice normativo en uso (CHROMA_RUTA del .env; por defecto chroma_e5)
   log_consultas.csv  las consultas registradas (RF-12), para conservar la evidencia de la sesión
   manifiesto.json  conteos por tabla y del índice, para validar la restauración
 
@@ -14,6 +14,7 @@ Uso (desde la raíz del proyecto):
 import argparse
 import csv
 import json
+import os
 import shutil
 import sqlite3
 import sys
@@ -22,7 +23,12 @@ from pathlib import Path
 
 RAIZ = Path(__file__).resolve().parent.parent
 DB = RAIZ / "DB" / "academico.db"
-CHROMA = RAIZ / "CHROMADB2" / "chroma_e5"
+try:  # el índice en uso lo fija CHROMA_RUTA en el .env (desde el 20/11: CHROMADB2/chroma_e5_v2)
+    from dotenv import load_dotenv
+    load_dotenv(RAIZ / ".env")
+except ImportError:
+    pass
+CHROMA = RAIZ / os.environ.get("CHROMA_RUTA", "CHROMADB2/chroma_e5")
 RESPALDOS = RAIZ / "RESPALDOS"
 TABLAS = ["estudiante", "matricula", "curso", "prerrequisito", "horario", "usuario", "log_consultas"]
 

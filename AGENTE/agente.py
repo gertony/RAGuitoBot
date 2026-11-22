@@ -63,7 +63,8 @@ INTENCIONES_V5 = [
                       r"(un )?promedio"),
     ("tipo_en_curso", r"(obligatori|electiv)\w* .*(llevando|llevo|curso)|(llevando|llevo) .*(obligatori|electiv)"),
     ("bloqueos", r"no (puedo|podre|podria) llevar .*si (jalo|desapruebo|repruebo)|si (jalo|desapruebo|repruebo) .*no "
-                 r"(puedo|podre|podria) llevar"),
+                 r"(puedo|podre|podria) llevar|pre ?r?requisito.*(llevando|llevo|cursando)|(llevando|llevo|cursando)"
+                 r".*pre ?r?requisito"),
 ]
 # corrección de erratas de palabras clave (v5): solo contra este vocabulario, con un umbral alto
 VOCABULARIO = ("cursos curso desaprueban desapruebo desaprobar aprueban apruebo aprobar semestre matricula promedio "
@@ -569,7 +570,8 @@ class Agente:
                     f = {"avance": self.a.avance_curricular, "en_curso": self.a.cursos_en_curso,
                          "disponibles": self.a.cursos_disponibles,
                          "pendientes": lambda e: self.a.cursos_pendientes(e, x.get("ciclo")),
-                         "extremos": self.a.notas_extremas, "tipo_en_curso": self.a.tipo_cursos_en_curso,
+                         "extremos": lambda e: self.a.notas_extremas(
+                             e, semestre_actual=bool(re.search(r"este (semestre|ciclo)|ahora|actual", _plano(x["pregunta"])))), "tipo_en_curso": self.a.tipo_cursos_en_curso,
                          "bloqueos": self.a.bloqueos_si_desaprueba,
                          "notas_valor": lambda e: self.a.cursos_con_nota(e, x.get("nota")) if x.get("nota") is not None
                          else self.a.notas_extremas(e),

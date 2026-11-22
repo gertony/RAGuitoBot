@@ -319,15 +319,21 @@ class Academico:
         return {"datos": {"cursos": [c["codigo"] for c in faltan]}, "texto": texto}
 
     # ---- consultas agregadas (21/11, «v5»: tipos de pregunta que reveló el conjunto ciego)
-    def notas_extremas(self, eid):
+    def notas_extremas(self, eid, semestre_actual=False):
         """Nota más alta y más baja de todo su historial, con asignatura y periodo."""
         ns = [m for m in self._matriculas(eid) if m["nota"] is not None]
+        en_curso = [m for m in self._matriculas(eid) if m["condicion"] == "en curso"]
+        aviso = ""
+        if semestre_actual and en_curso:
+            aviso = (f"Las asignaturas del semestre actual ({en_curso[0]['periodo']}) están en curso y todavía no tienen "
+                     f"nota. ")
         if not ns:
-            return {"datos": {}, "texto": f"El estudiante {eid} aún no tiene notas registradas."}
+            return {"datos": {}, "texto": aviso + f"El estudiante {eid} todavía no tiene ninguna nota registrada: cursa "
+                                                  f"su primer semestre y sus asignaturas están en curso."}
         alta, baja = max(m["nota"] for m in ns), min(m["nota"] for m in ns)
         f = lambda v: "; ".join(f"{m['nombre']} ({m['periodo']})" for m in ns if m["nota"] == v)  # noqa: E731
         return {"datos": {"max": alta, "min": baja},
-                "texto": f"Historial del estudiante {eid} ({len(ns)} notas): su nota más alta es {alta}, en {f(alta)}; "
+                "texto": aviso + f"Historial del estudiante {eid} ({len(ns)} notas): su nota más alta es {alta}, en {f(alta)}; "
                          f"su nota más baja es {baja}, en {f(baja)}."}
 
     def cursos_con_nota(self, eid, nota):

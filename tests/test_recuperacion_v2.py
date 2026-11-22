@@ -163,3 +163,14 @@ def test_v5_apagado_reproduce_la_v4(monkeypatch):
     assert agente.router_reglas("cual fue mi mejor nota historica?", a)["intenciones"] == ["resumen"]
     q = "todos los cuross se despruabn con 12?"
     assert agente.normalizar_consulta(q) == q
+
+
+def test_v5_ajustes_de_la_prueba_en_la_app(monkeypatch):
+    # 22/11, prueba manual en la app con EST0001 (primer semestre, sin notas)
+    import consultas
+    monkeypatch.setenv("EXTRAS_V5", "1")
+    a = consultas.Academico()
+    q = "que cursos que estoy llevando ahora son prerequisitos de un curso del siguiennde semenstre?"
+    assert agente.router_reglas(q, a)["intenciones"] == ["bloqueos"]
+    assert "primer semestre" in a.notas_extremas("EST0001")["texto"]
+    assert "todavía no tienen nota" in a.notas_extremas("EST0030", semestre_actual=True)["texto"]

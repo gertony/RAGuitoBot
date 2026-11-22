@@ -161,4 +161,5 @@ def test_v5_apagado_reproduce_la_v4(monkeypatch):
     monkeypatch.setenv("EXTRAS_V5", "0")
     a = consultas.Academico()
     assert agente.router_reglas("cual fue mi mejor nota historica?", a)["intenciones"] == ["resumen"]
-    assert agente.normalizar_consulta("todos los cuross se despruabn con 12?") == "todos los cuross se despruabn con 12?"
+    q = "todos los cuross se despruabn con 12?"
+    assert agente.normalizar_consulta(q) == q

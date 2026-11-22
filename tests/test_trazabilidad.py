@@ -257,8 +257,8 @@ def test_chat_muestra_fuentes_y_pasa_el_historial(app, monkeypatch):
     class AgenteFalso:
         def responder(self, eid, pregunta, historial=None):
             recibido.append(list(historial or []))
-            return {"respuesta": "Según el art. 289...", "contextos": ["[Reglamento General UNE | Art. 289 | Reserva] x",
-                                                                       "Estado de matrícula del estudiante ..."]}
+            contextos = ["[Reglamento General UNE | Art. 289 | Reserva] x", "Estado de matrícula del estudiante ..."]
+            return {"respuesta": "Según el art. 289...", "contextos": contextos}
 
     monkeypatch.setattr(servicios, "agente", lambda: AgenteFalso())
     at = ingresar(nueva(), "EST0001", "clave123")

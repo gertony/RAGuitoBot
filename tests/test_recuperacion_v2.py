@@ -82,3 +82,40 @@ def test_cursos_disponibles_proximo_semestre():
     assert not set(d["datos"]["ya"]) & aprobados
     assert "en que" in agente._plano("¿en qué año estoy?")
     assert "estado" in agente.router_reglas("¿en qué año estoy?", a)["intenciones"]
+
+
+def test_jale_es_dato_propio_y_si_jalo_es_hipotesis():
+    import consultas
+    a = consultas.Academico()
+    for q in ("jalé algun curso el semenstre pasado?", "me jalaron en física"):
+        assert "desaprobados" in agente.router_reglas(q, a)["intenciones"], q
+    assert "desaprobados" not in agente.router_reglas("si jalo un curso 3 veces, ¿me botan de la u?", a)["intenciones"]
+
+
+def test_jale_en_pasado_es_dato_propio():
+    import consultas
+    a = consultas.Academico()
+    r = agente.router_reglas("jalé algun curso el semenstre pasado?", a)
+    assert {"desaprobados", "notas_periodo"} <= set(r["intenciones"])
+    assert "desaprobados" in agente.router_reglas("¿reprobé algún curso?", a)["intenciones"]
+    # «si jalo» es una hipótesis: no pide su historial
+    assert "desaprobados" not in agente.router_reglas("si jalo un curso 3 veces, ¿me botan de la u?", a)["intenciones"]
+
+
+def test_preguntas_coloquiales_21_11():
+    import consultas
+    a = consultas.Academico()
+    r = lambda q: agente.router_reglas(q, a)  # noqa: E731
+    assert r("cuál es mi pps?")["intenciones"] == ["promedio"]
+    assert r("que nota saque en mate 2?")["curso"] == "ACFB0213"
+    assert r("mis notas del 2023-1")["periodo"] == "2023-I" and r("promedio del 2023 2")["periodo"] == "2023-II"
+    assert "avance" in r("cuantos creditos tengo?")["intenciones"]
+    assert "en_curso" in r("cuantos creditos tengo matriculados?")["intenciones"]
+    assert r("tengo clases el sabado?")["dia"] == "sabado"
+    assert "desaprobados" in r("estoy en riesgo de que me boten?")["intenciones"]
+    assert r("me falta algún curso del ciclo 3?")["intenciones"] == ["pendientes"] and r("del ciclo 3?")["ciclo"] == 3
+    assert "pendientes" in r("qué cursos me faltan?")["intenciones"]
+    assert "desaprobados" not in r("si jalo un curso 3 veces, ¿me botan de la u?")["intenciones"]
+    p = a.cursos_pendientes("EST0030")
+    assert p["datos"]["cursos"] and not set(p["datos"]["cursos"]) & a._aprobados("EST0030")
+    assert "2023-I" in a.promedio_ponderado("EST0030", "2023-I")["texto"]

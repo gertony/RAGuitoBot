@@ -46,8 +46,8 @@ MODELO_EMB = "intfloat/multilingual-e5-small"
 K_NORMATIVA = 4
 
 # ------------------------------------------------------------------ router por reglas
-DIAS = ["lunes", "martes", "miercoles", "jueves", "viernes"]
-PERSONAL = r"\b(mi|mis|me|tengo|llevo|llevando|saque|aprobe|desaprobe|estoy|voy|puedo matricularme|puedo llevar|" \
+DIAS = ["lunes", "martes", "miercoles", "jueves", "viernes", "sabado", "domingo"]
+PERSONAL = r"\b(mi|mis|me|tengo|llevo|llevando|saque|aprobe|desaprobe|jale|estoy|voy|puedo matricularme|puedo llevar|" \
            r"me falta|me faltan|me retiro|cumplo|sigo siendo|volviendo a llevar)\b"
 NORMATIVA = r"\b(reglamento|que pasa si|que me pasa si|si no (la|lo) paso|requisitos?|nota minima|reserv\w*|desmatricul\w*|retirarme|tope|maximo|" \
             r"bachiller|titulo|de que trata|electivo\w*|rectificacion|extemporane\w*|separa\w*|consecuencia|" \
@@ -55,17 +55,21 @@ NORMATIVA = r"\b(reglamento|que pasa si|que me pasa si|si no (la|lo) paso|requis
             r"que temas|contenidos?|sumilla|que se ve|que ve|que se necesita|que necesito)\b"
 SUMILLA = r"de que trata|que temas|contenidos?|sumilla|que se ve|que ve"
 INTENCIONES = [  # (intención, patrón); se evalúan todas y se acumulan
-    ("promedio", r"promedio"),
-    ("avance", r"creditos .*aprobados|porcentaje|avanzad|me faltan? .*terminar|avance|cuanto me falta"),
-    ("notas_periodo", r"notas|ciclo pasado|semestre pasado|ultimo semestre|como me fue en el ultimo"),
+    ("promedio", r"promedio|\bpps\b|\bppa\b|\bppt\b"),
+    ("pendientes", r"(que|cuales|cuantos|cuantas) (cursos|asignaturas|materias) (me faltan|tengo pendientes?|debo)|"
+                   r"(cursos|asignaturas|materias) (pendientes|que me faltan|que debo)|me falta (algun|algún|alguna) "
+                   r"(curso|asignatura|materia)"),
+    ("avance", r"cuantos creditos tengo\b(?! matricul)|creditos .*aprobados|porcentaje|avanzad|me faltan? .*terminar|avance|cuanto me falta"),
+    ("notas_periodo", r"notas|ciclo pasado|seme?n?stre pasado|ultimo seme?n?stre|como me fue en el ultimo"),
     ("en_curso", r"estoy llevando|llevo (matriculad|este)|creditos (estoy )?llevando|cursos .*este (ciclo|semestre)|"
                  r"que llevo|que cursos tengo|me retiro de|creditos llevo|mi carga|carga de creditos|"
-                 r"cursos llevo|llevo (ahorita|ahora|actualmente)|estoy cursando"),
+                 r"cursos llevo|llevo (ahorita|ahora|actualmente)|estoy cursando|creditos tengo matriculad"),
     ("horario", r"horario|clases|me toca|a que hora|hora (entro|salgo)"),
     ("puede_llevar", r"puedo (matricularme|llevar)"),
     ("disponibles", r"(que|cuales) (cursos|asignaturas|materias) (puedo|me toca|tengo disponibles?|hay disponibles?)|"
                     r"(cursos|asignaturas|materias) disponibles|puedo llevar (el|en el) (siguiente|proximo|otro)"),
-    ("desaprobados", r"desaprob|repit|volviendo a llevar|varias veces|otra vez"),  # "si desapruebo" (hipótesis) no es dato propio
+    ("desaprobados", r"desaprob|reprob|repit|volviendo a llevar|varias veces|otra vez|"
+                     r"\bjale\b|jalaste|jalado|jalaron|me jalan|riesgo|me (van a )?boten|me van a botar"),  # «jalé» = desaprobé (dato propio); «si jalo» / «si desapruebo» son hipótesis (norma)
     ("estado", r"matriculad[oa] este|estado|situacion|en que (ciclo|semestre|ano)\b"),
     ("avance_bachiller", r"cumplo .*bachiller|tramitar el bachiller"),
 ]
@@ -118,7 +122,14 @@ def router_reglas(pregunta, academico):
     else:
         ruta = None  # las reglas no deciden: desempata el LLM
     return {"ruta": ruta, "intenciones": intenciones or (["resumen"] if ruta in ("personal", "mixta") else []),
-            "curso": curso, "dia": next((d for d in DIAS if re.search(rf"\b{d}\b", p)), None)}
+            "curso": curso, "dia": next((d for d in DIAS if re.search(rf"\b{d}\b", p)), None),
+            "periodo": _periodo(p), "ciclo": (lambda m: int(m.group(1)) if m else None)(re.search(r"\bciclo (\d{1,2})\b", p))}
+
+
+def _periodo(p):
+    """«2023-II», «2023 2», «2023-1» → '2023-II' / '2023-I' (texto ya sin tildes ni guiones)."""
+    m = re.search(r"\b(20\d\d)\s*(ii|i|2|1)\b", p)
+    return f"{m.group(1)}-{'II' if m.group(2) in ('ii', '2') else 'I'}" if m else None
 
 
 PROMPT_ROUTER = ChatPromptTemplate.from_messages([
@@ -424,14 +435,16 @@ class Agente:
                 elif i == "horario":
                     texto = self.a.horario(eid)["texto"]
                     if x["dia"]:  # solo las sesiones del día preguntado
-                        dia = {"miercoles": "Miércoles"}.get(x["dia"], x["dia"].capitalize())
+                        dia = {"miercoles": "Miércoles", "sabado": "Sábado"}.get(x["dia"], x["dia"].capitalize())
                         partes = [s for s in texto.split(": ", 1)[-1].split("; ") if s.startswith(dia)]
                         texto = f"Horario del estudiante {eid} el {dia.lower()}: " + ("; ".join(partes) or "sin clases") + "."
                     ctx.append(texto)
                 else:
-                    f = {"promedio": self.a.promedio_ponderado, "avance": self.a.avance_curricular,
-                         "notas_periodo": self.a.notas_periodo, "en_curso": self.a.cursos_en_curso,
+                    f = {"avance": self.a.avance_curricular, "en_curso": self.a.cursos_en_curso,
                          "disponibles": self.a.cursos_disponibles,
+                         "pendientes": lambda e: self.a.cursos_pendientes(e, x.get("ciclo")),
+                         "notas_periodo": lambda e: self.a.notas_periodo(e, x.get("periodo")),
+                         "promedio": lambda e: self.a.promedio_ponderado(e, x.get("periodo")),
                          "desaprobados": self.a.desaprobados, "estado": self.a.estado_matricula,
                          "resumen": self.a.resumen}.get(i)
                     if f:

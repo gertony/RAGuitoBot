@@ -26,6 +26,7 @@ RAIZ = Path(__file__).resolve().parent.parent
 DB_POR_DEFECTO = RAIZ / "DB" / "academico.db"
 
 APROBATORIA = 11
+ALIAS = {"mate": "matematica basica", "progra": "programacion", "poo": "programacion orientada a objetos"}
 ROMANOS = {"1": "i", "2": "ii", "3": "iii", "4": "iv", "5": "v", "6": "vi"}
 
 
@@ -67,6 +68,8 @@ class Academico:
         n = _norm(texto)
         if not n:
             return None
+        for corto, largo in ALIAS.items():  # «mate 2» = Matemática Básica II, «progra» = Programación
+            n = re.sub(rf"\b{corto}\b", largo, n)
         # 1) el nombre normalizado de algún curso aparece completo en el texto (se prefiere el más largo)
         contenidos = [(len(nom), cod) for nom, cod in self._indice.items() if f" {nom} " in f" {n} "]
         if contenidos:
@@ -128,7 +131,7 @@ class Academico:
         datos = {"estado": e["estado"], "ciclo": e["ciclo_actual"], "periodo": e["periodo_referencia"]}
         return {"datos": datos, "texto": f"Estado de matrícula del estudiante {eid}: {detalle}."}
 
-    def promedio_ponderado(self, eid):
+    def promedio_ponderado(self, eid, periodo=None):
         por_sem = defaultdict(lambda: [0.0, 0.0])
         for m in self._matriculas(eid):
             if m["nota"] is not None:
@@ -142,6 +145,9 @@ class Academico:
         ultimo = list(parciales)[-1]
         texto = (f"Promedio ponderado total del estudiante {eid}: {_f(total)} (promedio de {len(parciales)} semestres "
                  f"calificados). Promedio ponderado del último semestre calificado ({ultimo}): {_f(parciales[ultimo])}.")
+        if periodo and periodo != ultimo:
+            texto += (f" Promedio ponderado del semestre {periodo}: {_f(parciales[periodo])}." if periodo in parciales
+                      else f" El estudiante no tiene notas en el periodo {periodo}.")
         return {"datos": {"total": total, "parciales": parciales, "ultimo_semestre": ultimo}, "texto": texto}
 
     def avance_curricular(self, eid):
@@ -267,6 +273,25 @@ class Academico:
         texto += " Las electivas dependen de su grupo electivo y no se listan aquí."
         return {"datos": {"ya": [c["codigo"] for c in orden(ya)], "si_aprueba": [c["codigo"] for c in orden(si_aprueba)]},
                 "texto": texto}
+
+    def cursos_pendientes(self, eid, ciclo=None):
+        """Asignaturas obligatorias del plan que aún no aprobó (las que lleva ahora se marcan), por ciclo."""
+        aprob = self._aprobados(eid)
+        en_curso = set(self.cursos_en_curso(eid)["datos"]["cursos"])
+        faltan = sorted((c for c in self.cursos.values() if not c["electivo"] and c["codigo"] not in aprob
+                         and (ciclo is None or c["ciclo"] == ciclo)), key=lambda c: (c["ciclo"], c["nombre"]))
+        alcance = f" del ciclo {ciclo}" if ciclo else ""
+        if not faltan:
+            return {"datos": {"cursos": []}, "texto": f"El estudiante {eid} no tiene asignaturas obligatorias "
+                                                     f"pendientes{alcance}."}
+        lista = "; ".join(f"{c['nombre']} (ciclo {c['ciclo']}{', en curso' if c['codigo'] in en_curso else ''})"
+                          for c in faltan)
+        texto = (f"Asignaturas obligatorias pendientes{alcance} del estudiante {eid} ({len(faltan)}): {lista}.")
+        if ciclo is None:
+            grupos = {c["grupo_electivo"] for c in self.cursos.values() if c["electivo"]}
+            ok = sum(any(c["codigo"] in aprob for c in self.cursos.values() if c["grupo_electivo"] == g) for g in grupos)
+            texto += f" Grupos electivos por cumplir: {len(grupos) - ok} de {len(grupos)}."
+        return {"datos": {"cursos": [c["codigo"] for c in faltan]}, "texto": texto}
 
     def desaprobados(self, eid):
         cuenta, ult = defaultdict(int), {}

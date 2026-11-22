@@ -175,7 +175,10 @@ PROMPT = ChatPromptTemplate.from_messages([
      "3. Copia los números tal como aparecen (notas, promedios, créditos, fechas, plazos).\n"
      "4. Si usas una norma, menciona su fuente (por ejemplo, \"según el art. 282 del Reglamento General\").\n"
      "5. Responde en español, en segunda persona (tú), de forma clara y breve (máximo 5 oraciones).\n"
-     "6. Si la pregunta combina datos del estudiante y normas, relaciona ambos para interpretar su situación."),
+     "6. Si la pregunta combina datos del estudiante y normas, relaciona ambos para interpretar su situación.\n"
+     "7. El estudiante puede usar jerga: «jalar» = desaprobar; «botar» = separar o retirar; «la u» = la universidad; "
+     "«profe» = docente; «ciclo» = semestre; «PPS/PPA» = promedio ponderado. Interprétala así antes de decidir si el "
+     "contexto responde la pregunta."),
     ("human", "CONTEXTO:\n{contexto}\n\nPREGUNTA DEL ESTUDIANTE: {pregunta}"),
 ])
 

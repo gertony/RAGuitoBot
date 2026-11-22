@@ -167,10 +167,13 @@ class Academico:
         return {"datos": datos, "texto": texto}
 
     def notas_periodo(self, eid, periodo=None):
+        pedido = periodo
         periodo = periodo or self.ultimo_periodo_cerrado(eid)
         if periodo is None:
             return {"datos": {"periodo": None, "notas": []},
-                    "texto": f"El estudiante {eid} aún no tiene periodos académicos concluidos con notas."}
+                    "texto": f"El estudiante {eid} aún no tiene periodos académicos concluidos con notas: no tiene un "
+                             f"semestre anterior calificado (cursa su primer semestre), así que no tiene notas de "
+                             f"semestres pasados."}
         filas = [m for m in self._matriculas(eid) if m["periodo"] == periodo and m["nota"] is not None]
         if not filas:
             return {"datos": {"periodo": periodo, "notas": []},
@@ -178,7 +181,8 @@ class Academico:
         notas = [{"curso": m["nombre"], "codigo": m["curso"], "nota": m["nota"], "condicion": m["condicion"]} for m in filas]
         lista = "; ".join(f"{n['curso']}: {n['nota']} ({n['condicion']})" for n in notas)
         return {"datos": {"periodo": periodo, "notas": notas},
-                "texto": f"Notas del estudiante {eid} en el periodo {periodo}: {lista}."}
+                "texto": f"Notas del estudiante {eid} en el periodo {periodo}"
+                         f"{'' if pedido else ' (su último semestre concluido, es decir, el semestre pasado)'}: {lista}."}
 
     def nota_curso(self, eid, codigo):
         c = self.cursos[codigo]

@@ -1,0 +1,201 @@
+[
+  {
+    "id": "B-P01",
+    "tipo": "personal",
+    "categoria": "prerrequisitos en curso",
+    "estudiante_id": "EST0016",
+    "pregunta": "que cursos no puedo llevar el sigueinte si jalo algun curso de este semenstre?",
+    "ground_truth": "Si desaprueba Circuitos Electrónicos I no podrá llevar Circuitos Electrónicos II, y si desaprueba Sistemas Digitales I no podrá llevar Sistemas Digitales II, porque son sus prerrequisitos. Sus demás asignaturas en curso no son prerrequisito de otra.",
+    "fuentes_esperadas": [
+      "cursos_en_curso",
+      "prerrequisitos"
+    ],
+    "ruta_esperada": "personal",
+    "revisado": false,
+    "origen_pregunta": "escrita por el estudiante el 21/11/2026 21:30 (texto original, con sus erratas); estudiante asignado al azar (random.seed(2026)) entre regulares no usados en otros conjuntos",
+    "origen_ground_truth": "calculado con consultas.py sobre academico.db (21/11/2026)"
+  },
+  {
+    "id": "B-P02",
+    "tipo": "personal",
+    "categoria": "mejor nota",
+    "estudiante_id": "EST0026",
+    "pregunta": "cual fue mi mejor nota historíca en toda la carera?",
+    "ground_truth": "Su mejor nota es 17, en Educación Alimentaria (2022-I).",
+    "fuentes_esperadas": [
+      "historial de notas"
+    ],
+    "ruta_esperada": "personal",
+    "revisado": false,
+    "origen_pregunta": "escrita por el estudiante el 21/11/2026 21:30 (texto original, con sus erratas); estudiante asignado al azar (random.seed(2026)) entre regulares no usados en otros conjuntos",
+    "origen_ground_truth": "calculado con consultas.py sobre academico.db (21/11/2026)"
+  },
+  {
+    "id": "B-P03",
+    "tipo": "personal",
+    "categoria": "meta de promedio",
+    "estudiante_id": "EST0033",
+    "pregunta": "cuantos puntos necesito para tener promedio 15 este semenstre?",
+    "ground_truth": "En 2024-I lleva 4 asignaturas con 14 créditos (PPP Continua 3, Sistemas de Control Automático 4, Electrónica de Potencia I 4 y Taller de Tesis II 3). Para un promedio ponderado de 15 en el semestre, la suma de nota × créditos debe llegar a 210 (15 × 14), es decir, promediar 15 ponderado por créditos.",
+    "fuentes_esperadas": [
+      "cursos_en_curso",
+      "promedio_ponderado"
+    ],
+    "ruta_esperada": "personal",
+    "revisado": false,
+    "origen_pregunta": "escrita por el estudiante el 21/11/2026 21:30 (texto original, con sus erratas); estudiante asignado al azar (random.seed(2026)) entre regulares no usados en otros conjuntos",
+    "origen_ground_truth": "calculado con consultas.py sobre academico.db (21/11/2026)"
+  },
+  {
+    "id": "B-P04",
+    "tipo": "personal",
+    "categoria": "peor nota",
+    "estudiante_id": "EST0050",
+    "pregunta": "caul fue mi peor nota historica?",
+    "ground_truth": "Su peor nota es 5, que obtuvo en Ecología y Ambiente (2022-I), Análisis de Circuitos Eléctricos (2022-II y 2023-I), Programación (2022-II) y Estadística Aplicada a la Investigación (2023-II).",
+    "fuentes_esperadas": [
+      "historial de notas"
+    ],
+    "ruta_esperada": "personal",
+    "revisado": false,
+    "origen_pregunta": "escrita por el estudiante el 21/11/2026 21:30 (texto original, con sus erratas); estudiante asignado al azar (random.seed(2026)) entre regulares no usados en otros conjuntos",
+    "origen_ground_truth": "calculado con consultas.py sobre academico.db (21/11/2026)"
+  },
+  {
+    "id": "B-P05",
+    "tipo": "personal",
+    "categoria": "notas iguales a 12",
+    "estudiante_id": "EST0039",
+    "pregunta": "que cursos tengo con nota 12?",
+    "ground_truth": "Tiene 12 en 18 asignaturas: Inglés I, Matemática Básica I y Cálculo I (2019-II); Biología, Metodología del Trabajo Universitario y Geografía General (2020-I); Matemática Básica II, Lenguaje y Comunicación III y Análisis de Circuitos Eléctricos (2020-II); Pedagogía General, Actividad Productiva, Proceso Histórico del Perú y del Mundo y Didáctica General (2021-I); Sistemas Operativos (2021-II); Planificación y Programación Curricular y Seminario de Tesis (2022-I); Robótica (2023-I) y PPP Administrativa (2023-II).",
+    "fuentes_esperadas": [
+      "historial de notas"
+    ],
+    "ruta_esperada": "personal",
+    "revisado": false,
+    "origen_pregunta": "escrita por el estudiante el 21/11/2026 21:30 (texto original, con sus erratas); estudiante asignado al azar (random.seed(2026)) entre regulares no usados en otros conjuntos",
+    "origen_ground_truth": "calculado con consultas.py sobre academico.db (21/11/2026)"
+  },
+  {
+    "id": "B-P06",
+    "tipo": "personal",
+    "categoria": "créditos de los cursos en curso",
+    "estudiante_id": "EST0060",
+    "pregunta": "que cursos pesas mas de los que estoy llevando?",
+    "ground_truth": "De sus asignaturas en curso, las de más créditos son Circuitos Electrónicos I y Sistemas Digitales I (4 créditos cada una); le sigue Didáctica General (3) y las demás tienen 2 créditos.",
+    "fuentes_esperadas": [
+      "cursos_en_curso"
+    ],
+    "ruta_esperada": "personal",
+    "revisado": false,
+    "origen_pregunta": "escrita por el estudiante el 21/11/2026 21:30 (texto original, con sus erratas); estudiante asignado al azar (random.seed(2026)) entre regulares no usados en otros conjuntos",
+    "origen_ground_truth": "calculado con consultas.py sobre academico.db (21/11/2026)"
+  },
+  {
+    "id": "B-P07",
+    "tipo": "personal",
+    "categoria": "obligatorias en curso",
+    "estudiante_id": "EST0038",
+    "pregunta": "que cursos de los que estoy llevando son obligatorios?",
+    "ground_truth": "Las tres asignaturas que lleva son obligatorias: Taller de Tesis II, PPP Administrativa y PPP en la Comunidad.",
+    "fuentes_esperadas": [
+      "cursos_en_curso",
+      "plan de estudios"
+    ],
+    "ruta_esperada": "personal",
+    "revisado": false,
+    "origen_pregunta": "escrita por el estudiante el 21/11/2026 21:30 (texto original, con sus erratas); estudiante asignado al azar (random.seed(2026)) entre regulares no usados en otros conjuntos",
+    "origen_ground_truth": "calculado con consultas.py sobre academico.db (21/11/2026)"
+  },
+  {
+    "id": "B-M01",
+    "tipo": "mixta",
+    "categoria": "adelantar cursos",
+    "estudiante_id": "EST0021",
+    "pregunta": "que cursos puedo adelantar el sigueinte semenstre?",
+    "ground_truth": "Está en el ciclo 5. Con sus prerrequisitos aprobados podría adelantar asignaturas de ciclos superiores al 6, por ejemplo Desarrollo del Pensamiento Científico y Tecnológico, Sistemas de Comunicación Digital y Sistemas de Control Automático (ciclo 7) o Programación Orientada a Objetos (ciclo 8), entre otras. En todo caso no puede matricularse en más de 22 créditos por semestre (art. 283 del Reglamento General).",
+    "fuentes_esperadas": [
+      "cursos_disponibles",
+      "Reglamento General UNE, art. 283"
+    ],
+    "ruta_esperada": "mixta",
+    "revisado": false,
+    "origen_pregunta": "escrita por el estudiante el 21/11/2026 21:30 (texto original, con sus erratas); estudiante asignado al azar (random.seed(2026)) entre regulares no usados en otros conjuntos",
+    "origen_ground_truth": "consultas.py sobre academico.db + Reglamento General UNE, art. 283"
+  },
+  {
+    "id": "B-N01",
+    "tipo": "normativa",
+    "categoria": "desaprobar varias asignaturas",
+    "estudiante_id": null,
+    "pregunta": "si jalo varios cursos pasa algo?",
+    "ground_truth": "La normativa no establece una sanción por desaprobar varias asignaturas distintas. La consecuencia se da al desaprobar una misma asignatura tres veces: separación temporal por un año, al volver solo puede matricularse en esa asignatura, y si la desaprueba por cuarta vez procede el retiro definitivo (art. 282 del Reglamento General; art. 102 de la Ley 30220).",
+    "fuentes_esperadas": [
+      "Reglamento General UNE, art. 282",
+      "Ley Universitaria N.° 30220, art. 102"
+    ],
+    "ruta_esperada": "normativa",
+    "revisado": false,
+    "origen_pregunta": "escrita por el estudiante el 21/11/2026 21:30 (texto original, con sus erratas)",
+    "origen_ground_truth": "Reglamento General UNE, art. 282; Ley 30220, art. 102"
+  },
+  {
+    "id": "B-N02",
+    "tipo": "normativa",
+    "categoria": "nota aprobatoria",
+    "estudiante_id": null,
+    "pregunta": "todos los cuross se despruabn con 12?",
+    "ground_truth": "No. En pregrado la nota mínima aprobatoria es once (11), así que con 12 se aprueba (rango «Regular»: 13, 12 y 11). Solo en posgrado la mínima es 14 (art. 292 del Reglamento General).",
+    "fuentes_esperadas": [
+      "Reglamento General UNE, art. 292"
+    ],
+    "ruta_esperada": "normativa",
+    "revisado": false,
+    "origen_pregunta": "escrita por el estudiante el 21/11/2026 21:30 (texto original, con sus erratas)",
+    "origen_ground_truth": "Reglamento General UNE, art. 292"
+  },
+  {
+    "id": "B-N03",
+    "tipo": "normativa",
+    "categoria": "promedio 11,50",
+    "estudiante_id": null,
+    "pregunta": "que pasa si saco 11.50 de promedio?",
+    "ground_truth": "La normativa disponible no establece una consecuencia específica para un promedio de 11,50 ni reglas de redondeo. Solo indica que la nota mínima aprobatoria de una asignatura en pregrado es 11 (art. 292) y que el promedio ponderado total se considera con dos decimales para el orden de mérito (art. 293.2.3).",
+    "fuentes_esperadas": [
+      "Reglamento General UNE, art. 292",
+      "Reglamento General UNE, art. 293"
+    ],
+    "ruta_esperada": "normativa",
+    "revisado": false,
+    "origen_pregunta": "escrita por el estudiante el 21/11/2026 21:30 (texto original, con sus erratas)",
+    "origen_ground_truth": "Reglamento General UNE, arts. 292 y 293.2.3 (no hay regla de redondeo en la normativa indexada)"
+  },
+  {
+    "id": "B-N04",
+    "tipo": "normativa",
+    "categoria": "promedio ponderado",
+    "estudiante_id": null,
+    "pregunta": "el promedio ponderado que es y cuando se actualiza?",
+    "ground_truth": "El promedio ponderado por semestre es la suma de la ponderación de las asignaturas (créditos × nota) dividida entre el número de asignaturas cursadas en ese semestre, y el promedio ponderado total es la suma de los promedios semestrales entre el número de semestres cursados (art. 293 del Reglamento General). La normativa no indica cuándo se actualiza; por su definición, cambia al cerrarse cada semestre.",
+    "fuentes_esperadas": [
+      "Reglamento General UNE, art. 293"
+    ],
+    "ruta_esperada": "normativa",
+    "revisado": false,
+    "origen_pregunta": "escrita por el estudiante el 21/11/2026 21:30 (texto original, con sus erratas)",
+    "origen_ground_truth": "Reglamento General UNE, art. 293 (la fecha de actualización no figura en la normativa)"
+  },
+  {
+    "id": "B-N05",
+    "tipo": "normativa",
+    "categoria": "inasistencias",
+    "estudiante_id": null,
+    "pregunta": "que pasa si falto a practicas?",
+    "ground_truth": "La normativa indexada no regula las inasistencias de los estudiantes a clases o prácticas, así que no hay información para responder; corresponde consultar el sílabo o a la Escuela Profesional.",
+    "fuentes_esperadas": [],
+    "ruta_esperada": "normativa",
+    "revisado": false,
+    "origen_pregunta": "escrita por el estudiante el 21/11/2026 21:30 (texto original, con sus erratas)",
+    "origen_ground_truth": "búsqueda en el Reglamento General, la Ley 30220, los documentos FATEC y el plan de estudios: no hay regla de inasistencias de estudiantes (21/11/2026)"
+  }
+]

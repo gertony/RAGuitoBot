@@ -112,9 +112,10 @@ def resumen(filas):
     for t in ("personal", "normativa", "mixta"):
         grupos[t] = [f for f in filas if f["tipo"] == t]
     # corrida final ampliada: también por conjunto (H- retención, C- confirmación, el resto testbed)
-    conjunto = lambda i: "retencion" if str(i).startswith("H-") else "confirmacion" if str(i).startswith("C-") else "testbed"  # noqa: E731
+    prefijos = {"H-": "retencion", "C-": "confirmacion", "B-": "ciego"}
+    conjunto = lambda i: next((v for k, v in prefijos.items() if str(i).startswith(k)), "testbed")  # noqa: E731
     if len({conjunto(f["id"]) for f in filas}) > 1:
-        for c in ("testbed", "retencion", "confirmacion"):
+        for c in ("testbed", "retencion", "confirmacion", "ciego"):
             grupos[c] = [f for f in filas if conjunto(f["id"]) == c]
     for g, fs in grupos.items():
         medias = {}

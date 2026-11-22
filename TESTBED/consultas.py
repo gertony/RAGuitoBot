@@ -274,9 +274,27 @@ class Academico:
                  f"{fmt(ya) or 'ninguna'}.")
         if si_aprueba:
             texto += (f" Se habilitan además solo si aprueba las asignaturas que cursa ahora: {fmt(si_aprueba)}.")
-        texto += " Las electivas dependen de su grupo electivo y no se listan aquí."
+        faltan_e, _, _ = self._electivas_pendientes(aprob, en_curso)
+        abiertas = [(g, cs) for g, cs in faltan_e if not any(c["codigo"] in en_curso for c in cs)
+                    and all(self.prereq.get(c["codigo"], set()) <= aprob for c in cs)]
+        if abiertas:
+            texto += " Electivas (basta una por grupo): " + "; ".join(
+                f"grupo del ciclo {cs[0]['ciclo']}: " + ", ".join(c["nombre"] for c in cs) for g, cs in abiertas) + "."
         return {"datos": {"ya": [c["codigo"] for c in orden(ya)], "si_aprueba": [c["codigo"] for c in orden(si_aprueba)]},
                 "texto": texto}
+
+    def _electivas_pendientes(self, aprob, en_curso=frozenset()):
+        """Grupos electivos sin cumplir (basta aprobar una asignatura de cada grupo), con sus opciones."""
+        grupos = {}
+        for c in sorted(self.cursos.values(), key=lambda c: (c["ciclo"], c["nombre"])):
+            if c["electivo"]:
+                grupos.setdefault(c["grupo_electivo"], []).append(c)
+        faltan = [(g, cs) for g, cs in grupos.items() if not any(c["codigo"] in aprob for c in cs)]
+        texto = "; ".join(
+            f"grupo del ciclo {cs[0]['ciclo']} ({cs[0]['creditos']:.0f} cr, elegir una"
+            f"{', ya lleva ' + next(c['nombre'] for c in cs if c['codigo'] in en_curso) if any(c['codigo'] in en_curso for c in cs) else ''}"
+            f"): " + ", ".join(c["nombre"] for c in cs) for g, cs in faltan)
+        return faltan, len(grupos), texto
 
     def cursos_pendientes(self, eid, ciclo=None):
         """Asignaturas obligatorias del plan que aún no aprobó (las que lleva ahora se marcan), por ciclo."""
@@ -286,15 +304,18 @@ class Academico:
                          and (ciclo is None or c["ciclo"] == ciclo)), key=lambda c: (c["ciclo"], c["nombre"]))
         alcance = f" del ciclo {ciclo}" if ciclo else ""
         if not faltan:
-            return {"datos": {"cursos": []}, "texto": f"El estudiante {eid} no tiene asignaturas obligatorias "
-                                                     f"pendientes{alcance}."}
+            texto = f"El estudiante {eid} no tiene asignaturas obligatorias pendientes{alcance}."
+            if ciclo is None:
+                faltan_e, total_e, detalle = self._electivas_pendientes(aprob, en_curso)
+                texto += f" Grupos electivos por cumplir: {len(faltan_e)} de {total_e}" + (f" ({detalle})." if faltan_e else ".")
+            return {"datos": {"cursos": []}, "texto": texto}
         lista = "; ".join(f"{c['nombre']} (ciclo {c['ciclo']}{', en curso' if c['codigo'] in en_curso else ''})"
                           for c in faltan)
         texto = (f"Asignaturas obligatorias pendientes{alcance} del estudiante {eid} ({len(faltan)}): {lista}.")
         if ciclo is None:
-            grupos = {c["grupo_electivo"] for c in self.cursos.values() if c["electivo"]}
-            ok = sum(any(c["codigo"] in aprob for c in self.cursos.values() if c["grupo_electivo"] == g) for g in grupos)
-            texto += f" Grupos electivos por cumplir: {len(grupos) - ok} de {len(grupos)}."
+            faltan_e, total_e, detalle = self._electivas_pendientes(aprob, en_curso)
+            texto += (f" Grupos electivos por cumplir: {len(faltan_e)} de {total_e}"
+                      + (f" ({detalle})." if faltan_e else "."))
         return {"datos": {"cursos": [c["codigo"] for c in faltan]}, "texto": texto}
 
     def desaprobados(self, eid):

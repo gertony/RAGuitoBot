@@ -203,9 +203,9 @@ def test_cu11_23_el_chat_usa_el_id_de_la_sesion(app, monkeypatch):
     llamadas = []
 
     class AgenteEspia:
-        def responder(self, eid, pregunta):
+        def responder(self, eid, pregunta, historial=None):
             llamadas.append(eid)
-            return {"respuesta": "ok"}
+            return {"respuesta": "ok", "contextos": []}
 
     monkeypatch.setattr(servicios, "agente", lambda: AgenteEspia())
     at = ingresar(nueva(), "EST0001", "clave123")
@@ -246,3 +246,25 @@ def test_cu06_cambio_de_proveedor_por_configuracion(monkeypatch, caso, proveedor
     monkeypatch.setenv("GOOGLE_API_KEY", "clave-de-prueba")
     monkeypatch.delenv("LLM_RPM", raising=False)
     assert type(crear_llm()).__name__ == clase
+
+
+def test_chat_muestra_fuentes_y_pasa_el_historial(app, monkeypatch):
+    # 21/11: el chat muestra las fuentes citadas y envía las preguntas previas (memoria de la conversación).
+    import servicios
+    nueva, _ = app
+    recibido = []
+
+    class AgenteFalso:
+        def responder(self, eid, pregunta, historial=None):
+            recibido.append(list(historial or []))
+            return {"respuesta": "Según el art. 289...", "contextos": ["[Reglamento General UNE | Art. 289 | Reserva] x",
+                                                                       "Estado de matrícula del estudiante ..."]}
+
+    monkeypatch.setattr(servicios, "agente", lambda: AgenteFalso())
+    at = ingresar(nueva(), "EST0001", "clave123")
+    at.chat_input[0].set_value("¿puedo reservar mi matrícula?").run()
+    at.chat_input[0].set_value("¿y por cuánto tiempo?").run()
+    assert recibido == [[], ["¿puedo reservar mi matrícula?"]]
+    assert at.expander and at.expander[0].label == "Fuentes consultadas"
+    textos = " ".join(m.value for m in at.markdown)
+    assert "Art. 289" in textos and "Tus datos del registro académico" in textos

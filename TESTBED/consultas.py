@@ -318,6 +318,62 @@ class Academico:
                       + (f" ({detalle})." if faltan_e else "."))
         return {"datos": {"cursos": [c["codigo"] for c in faltan]}, "texto": texto}
 
+    # ---- consultas agregadas (21/11, «v5»: tipos de pregunta que reveló el conjunto ciego)
+    def notas_extremas(self, eid):
+        """Nota más alta y más baja de todo su historial, con asignatura y periodo."""
+        ns = [m for m in self._matriculas(eid) if m["nota"] is not None]
+        if not ns:
+            return {"datos": {}, "texto": f"El estudiante {eid} aún no tiene notas registradas."}
+        alta, baja = max(m["nota"] for m in ns), min(m["nota"] for m in ns)
+        f = lambda v: "; ".join(f"{m['nombre']} ({m['periodo']})" for m in ns if m["nota"] == v)  # noqa: E731
+        return {"datos": {"max": alta, "min": baja},
+                "texto": f"Historial del estudiante {eid} ({len(ns)} notas): su nota más alta es {alta}, en {f(alta)}; "
+                         f"su nota más baja es {baja}, en {f(baja)}."}
+
+    def cursos_con_nota(self, eid, nota):
+        ns = [m for m in self._matriculas(eid) if m["nota"] == nota]
+        if not ns:
+            return {"datos": {"cursos": []}, "texto": f"El estudiante {eid} no tiene ninguna asignatura con nota {nota}."}
+        lista = "; ".join(f"{m['nombre']} ({m['periodo']})" for m in ns)
+        return {"datos": {"cursos": [m["curso"] for m in ns]},
+                "texto": f"Asignaturas en las que el estudiante {eid} obtuvo {nota} ({len(ns)}): {lista}."}
+
+    def meta_promedio(self, eid, objetivo):
+        """Lo que necesita en sus asignaturas en curso para un promedio ponderado semestral dado (nota × créditos)."""
+        en = [m for m in self._matriculas(eid) if m["condicion"] == "en curso"]
+        if not en:
+            return {"datos": {}, "texto": f"El estudiante {eid} no tiene asignaturas en curso."}
+        cr = sum(m["creditos"] for m in en)
+        meta = objetivo * cr
+        lista = "; ".join(f"{m['nombre']} ({m['creditos']:.0f} cr)" for m in en)
+        return {"datos": {"creditos": cr, "suma_necesaria": meta},
+                "texto": f"Para un promedio ponderado de {_f(objetivo)} este semestre, el estudiante {eid} necesita que "
+                         f"la suma de nota × créditos de sus {len(en)} asignaturas en curso ({cr:.0f} créditos: {lista}) "
+                         f"llegue a {_f(meta)}, es decir, sacar en promedio {_f(objetivo)} ponderado por créditos (por "
+                         f"ejemplo, {_f(objetivo)} en todas)."}
+
+    def tipo_cursos_en_curso(self, eid):
+        en = [m for m in self._matriculas(eid) if m["condicion"] == "en curso"]
+        if not en:
+            return {"datos": {}, "texto": f"El estudiante {eid} no tiene asignaturas en curso."}
+        t = lambda m: "electiva" if self.cursos[m["curso"]]["electivo"] else "obligatoria"  # noqa: E731
+        lista = "; ".join(f"{m['nombre']}: {t(m)} ({m['creditos']:.0f} cr)" for m in en)
+        return {"datos": {}, "texto": f"Tipo de las asignaturas en curso del estudiante {eid}: {lista}."}
+
+    def bloqueos_si_desaprueba(self, eid):
+        """Qué asignaturas no podría llevar el próximo semestre si desaprueba alguna de las que cursa ahora."""
+        en = [m["curso"] for m in self._matriculas(eid) if m["condicion"] == "en curso"]
+        partes = []
+        for c in en:
+            dep = sorted(k for k, v in self.prereq.items() if c in v)
+            if dep:
+                partes.append(f"si desaprueba {self.cursos[c]['nombre']}, no podrá llevar "
+                              + ", ".join(self.cursos[d]["nombre"] for d in dep))
+        if not partes:
+            return {"datos": {}, "texto": f"Ninguna asignatura que cursa el estudiante {eid} es prerrequisito de otra."}
+        return {"datos": {}, "texto": f"Prerrequisitos en juego del estudiante {eid}: " + "; ".join(partes)
+                                      + ". Sus demás asignaturas en curso no son prerrequisito de otra."}
+
     def desaprobados(self, eid):
         cuenta, ult = defaultdict(int), {}
         for m in self._matriculas(eid):

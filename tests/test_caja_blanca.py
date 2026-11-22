@@ -145,13 +145,13 @@ def agente(ruta_db, respuestas):
 
 def test_cb05_desempate_del_llm(ruta_db):
     a = agente(ruta_db, ['{"ruta": "personal"}', "Respuesta de prueba."])
-    r = a.responder("EST0001", "Hola")
+    r = a.responder("EST0001", "Cuéntame algo")  # ni reglas ni saludo: desempata el LLM
     assert (r["ruta"], r["router"], r["intenciones"]) == ("personal", "llm", ["resumen"])
 
 
 def test_cb05_llm_fallido_va_a_normativa(ruta_db):
     a = agente(ruta_db, ["no es un JSON", "Respuesta de prueba."])
-    r = a.responder("EST0001", "Hola")
+    r = a.responder("EST0001", "Cuéntame algo")  # ni reglas ni saludo: desempata el LLM
     assert (r["ruta"], r["router"]) == ("normativa", "llm-fallido")
 
 

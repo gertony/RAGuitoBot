@@ -98,8 +98,8 @@ def test_cu12_puede_llevar(agente, caso, eid, curso, motivo):
     ("CP-09-02", None, "que pasa si jalo un curso 3 veces", "normativa"),
     ("CP-09-03", "EST0069", "Desaprobé Lenguaje y Comunicación I varias veces, ¿qué consecuencia tiene eso para mí?",
      "mixta"),
+    # D-11 corregido el 21/11: «horario» sin señal personal ni día ya no se toma como consulta personal
     pytest.param("CP-09-04", "EST0016", "¿Qué dice el reglamento sobre el horario del comedor?", "normativa",
-                 marks=pytest.mark.xfail(strict=True, reason="D-11: «horario» se toma como consulta personal"),
                  id="CP-09-04"),
 ))
 def test_cu09_ruta(agente, caso, eid, pregunta, ruta_esperada):

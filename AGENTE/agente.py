@@ -54,6 +54,20 @@ NORMATIVA = r"\b(reglamento|que pasa si|que me pasa si|si no (la|lo) paso|requis
             r"permite|segun|norma\w*|tres veces|tercera vez|cuarta vez|regular|prorroga|se aprueba|aprobar un|" \
             r"que temas|contenidos?|sumilla|que se ve|que ve|que se necesita|que necesito)\b"
 SUMILLA = r"de que trata|que temas|contenidos?|sumilla|que se ve|que ve"
+# Intenciones «v5» (21/11, después de la corrida v4): tipos de consulta que reveló el conjunto ciego. Se apagan con
+# EXTRAS_V5=0 para reproducir la v4 / medir la v4.1 sin ellas.
+INTENCIONES_V5 = [
+    ("extremos", r"(mejor|peor) nota|nota (mas alta|mas baja)"),
+    ("notas_valor", r"(con|de) (nota|un|una) (\d{1,2})\b|(saque|tengo|obtuve) (\d{1,2}) en"),
+    ("meta_promedio", r"(cuanto|cuantos puntos|que nota|que notas) necesito|necesito .*promedio|para (tener|sacar|llegar a) "
+                      r"(un )?promedio"),
+    ("tipo_en_curso", r"(obligatori|electiv)\w* .*(llevando|llevo|curso)|(llevando|llevo) .*(obligatori|electiv)"),
+    ("bloqueos", r"no (puedo|podre|podria) llevar .*si (jalo|desapruebo|repruebo)|si (jalo|desapruebo|repruebo) .*no "
+                 r"(puedo|podre|podria) llevar"),
+]
+# corrección de erratas de palabras clave (v5): solo contra este vocabulario, con un umbral alto
+VOCABULARIO = ("cursos curso desaprueban desapruebo desaprobar aprueban apruebo aprobar semestre matricula promedio "
+               "creditos nota notas reglamento asignatura asignaturas ciclo carrera horario requisitos").split()
 INTENCIONES = [  # (intención, patrón); se evalúan todas y se acumulan
     ("promedio", r"promedio|\bpps\b|\bppa\b|\bppt\b"),
     ("pendientes", r"(que|cuales|cuantos|cuantas) (cursos|asignaturas|materias) (me faltan|tengo pendientes?|debo)|"
@@ -80,10 +94,37 @@ def _plano(t):
     return re.sub(r"[^a-z0-9 ]", " ", t)
 
 
+def extras_v5():
+    return os.environ.get("EXTRAS_V5", "1") == "1"
+
+
+def corregir_erratas(p):
+    """«cuross se despruabn» → «cursos se desaprueban» (difflib contra VOCABULARIO; texto ya en _plano).
+
+    Solo se usa para la búsqueda normativa (se agrega la versión corregida); las reglas no la usan.
+    """
+    import difflib
+    salida = []
+    for w in p.split():
+        # solo palabras largas que no sean una forma de una palabra del vocabulario («matriculado» ≠ errata)
+        if len(w) >= 6 and w not in VOCABULARIO and not any(v.startswith(w[:5]) for v in VOCABULARIO):
+            c = difflib.get_close_matches(w, VOCABULARIO, n=1, cutoff=0.8)
+            w = c[0] if c else w
+        salida.append(w)
+    return " ".join(salida)
+
+
 def router_reglas(pregunta, academico):
     p = _plano(pregunta)
     curso = academico.buscar_curso(pregunta)
     intenciones = [n for n, pat in INTENCIONES if re.search(pat, p)]
+    if extras_v5():
+        nuevas = [n for n, pat in INTENCIONES_V5 if re.search(pat, p)]
+        if nuevas:  # la consulta agregada reemplaza a las genéricas que se activan con las mismas palabras
+            intenciones = [i for i in intenciones if i not in ("notas_periodo", "promedio", "en_curso", "puede_llevar",
+                                                              "disponibles")] + nuevas
+    if "horario" in intenciones and not re.search(PERSONAL, p) and not any(re.search(rf"\b{d}\b", p) for d in DIAS):
+        intenciones.remove("horario")  # D-11: «¿qué dice el reglamento sobre el horario del comedor?» no es su horario
     # una pregunta personal que nombra un día de la semana pide el horario ("¿qué me toca el miércoles?")
     if "horario" not in intenciones and re.search(PERSONAL, p) and any(re.search(rf"\b{d}\b", p) for d in DIAS):
         intenciones.append("horario")
@@ -123,6 +164,9 @@ def router_reglas(pregunta, academico):
         ruta = None  # las reglas no deciden: desempata el LLM
     return {"ruta": ruta, "intenciones": intenciones or (["resumen"] if ruta in ("personal", "mixta") else []),
             "curso": curso, "dia": next((d for d in DIAS if re.search(rf"\b{d}\b", p)), None),
+            "nota": (lambda m: int(next(g for g in m.groups() if g and g.isdigit())) if m else None)(
+                re.search(r"(?:con|de) (?:nota|un|una) (\d{1,2})\b|(?:saque|tengo|obtuve) (\d{1,2}) en", p)),
+            "objetivo": (lambda m: float(m.group(1)) if m else None)(re.search(r"promedio (?:de )?(\d{1,2}(?:[.,]\d+)?)", p)),
             "periodo": _periodo(p), "ciclo": (lambda m: int(m.group(1)) if m else None)(re.search(r"\bciclo (\d{1,2})\b", p))}
 
 
@@ -164,14 +208,54 @@ PROMPT_ROUTER_V2 = ChatPromptTemplate.from_messages([
     ("human", "{pregunta}"),
 ])
 
+# Mensajes que no son consultas (21/11): se responden sin LLM ni recuperación
+SALUDO = (r"^(hola+|holi+s?|buenas?( tardes| noches| dias)?|buenos dias|hey|que tal|gracias|muchas gracias|"
+          r"mil gracias|ok(ey)?|vale|listo|perfecto|genial|chau|chao|adios|hasta luego|nos vemos)( \w+)?$")
+AYUDA = r"^(ayuda|que (puedes|sabes) hacer|quien eres|que eres|como (funcionas|te uso)|para que sirves)( \w+)?$"
+RESPUESTA_SALUDO = ("¡Hola! Pregúntame por tus notas, tu promedio, tu avance, tu horario, los cursos que te faltan o "
+                    "que puedes llevar, o por el Reglamento General de la UNE.")
+RESPUESTA_GRACIAS = "¡De nada! Si tienes otra consulta académica, aquí estoy."
+RESPUESTA_AYUDA = ("Soy RAGuitoBot, el asistente académico de la UNE. Respondo con tus datos del registro académico "
+                   "(notas, promedio, créditos, avance, horario, matrícula, cursos pendientes o disponibles y "
+                   "prerrequisitos) y con la normativa (Reglamento General, Ley Universitaria y plan de estudios), "
+                   "citando el artículo. No invento datos: si algo no está en los registros, te lo digo.")
+
+
+def mensaje_directo(pregunta):
+    """Respuesta fija para saludos, agradecimientos y pedidos de ayuda; None si es una consulta."""
+    p = " ".join(_plano(pregunta).split())
+    if re.match(AYUDA, p):
+        return RESPUESTA_AYUDA
+    if re.match(SALUDO, p):
+        return RESPUESTA_GRACIAS if re.search(r"gracias", p) else RESPUESTA_SALUDO
+    return None
+
+
+# Memoria de la conversación (21/11): una pregunta de seguimiento («¿y en 2023-I?») se reescribe como pregunta
+# completa con las anteriores. Solo la usa la app (el testbed evalúa preguntas independientes).
+SEGUIMIENTO = r"^(y|e|tambien|entonces|y si|y en|y para|y del|y de|y el|y la|y los|y las|que hay de|y que)\b"
+PROMPT_REESCRIBIR = ChatPromptTemplate.from_messages([
+    ("system", "Reescribe la ÚLTIMA pregunta del estudiante como una pregunta completa e independiente, usando la "
+               "conversación previa para completar lo que falta (curso, periodo, tema). Mantén su forma de hablar y "
+               "la primera persona. Responde SOLO con la pregunta reescrita."),
+    ("human", "Conversación previa:\n{previas}\n\nÚltima pregunta: {pregunta}"),
+])
+
+
+def es_seguimiento(pregunta):
+    p = " ".join(_plano(pregunta).split())
+    return bool(re.match(SEGUIMIENTO, p)) and len(p.split()) <= 10
+
+
 # ------------------------------------------------------------------ prompt de generación
 PROMPT = ChatPromptTemplate.from_messages([
     ("system",
      "Eres un asistente académico de la Universidad Nacional de Educación Enrique Guzmán y Valle que ayuda a un "
      "estudiante a interpretar su información académica. Reglas obligatorias:\n"
      "1. Responde ÚNICAMENTE con la información del CONTEXTO. No uses conocimiento propio.\n"
-     "2. Si el contexto no contiene la información pedida, responde exactamente: \"No tengo esa información en los "
-     "registros disponibles.\" No inventes datos.\n"
+     "2. Si el contexto no contiene NADA de lo pedido, responde exactamente: \"No tengo esa información en los "
+     "registros disponibles.\" Si contiene solo una parte, responde esa parte y di en una frase qué dato no "
+     "tienes. Nunca inventes datos.\n"
      "3. Copia los números tal como aparecen (notas, promedios, créditos, fechas, plazos).\n"
      "4. Si usas una norma, menciona su fuente (por ejemplo, \"según el art. 282 del Reglamento General\").\n"
      "5. Responde en español, en segunda persona (tú), de forma clara y breve (máximo 5 oraciones).\n"
@@ -204,6 +288,10 @@ VACIAS = set("a al como con de del el en es la las lo los me mi mis o para por q
 
 def normalizar_consulta(pregunta):
     p = _plano(pregunta)
+    if extras_v5():
+        corregida = corregir_erratas(p)
+        if corregida != " ".join(p.split()):  # se agrega la versión corregida (no se reemplaza la original)
+            pregunta, p = f"{pregunta} {corregida}", corregida
     extra = [t for pat, t in SINONIMOS if re.search(pat, p)]
     extra += [f"{CIFRAS[n]} veces" for n in re.findall(r"\b([1-5])\s*(?:veces|vez)\b", p)]
     return pregunta + (" " + " ".join(extra) if extra else "")
@@ -238,6 +326,28 @@ class _BM25:
         return [i for _, i in sorted(puntajes, reverse=True)[:n]]
 
 
+def diversificar(candidatos, k):
+    """Agrupa los fragmentos por (documento, artículo) en el orden de relevancia y devuelve k grupos distintos.
+
+    Los trozos de un mismo artículo se unen en un solo texto (el primero conserva su encabezado [doc | art]).
+    """
+    grupos, vistos = {}, set()
+    for doc, meta in candidatos:
+        clave = (meta.get("documento"), str(meta.get("articulo")), meta.get("titulo") if meta.get("articulo") in
+                 (None, "", "-") else None)
+        cuerpo = doc.split("]", 1)[1].strip() if doc.startswith("[") and "]" in doc else doc
+        if cuerpo in vistos:
+            continue
+        if clave in grupos:
+            texto, m = grupos[clave]
+            grupos[clave] = (texto + "\n[…] " + cuerpo, m)
+            vistos.add(cuerpo)
+        elif len(grupos) < k:
+            grupos[clave] = (doc, meta)
+            vistos.add(cuerpo)
+    return list(grupos.values())
+
+
 class BuscadorNormativa:
     """Recuperación normativa. Por defecto, la de la tesis: búsqueda densa e5, k = 4.
 
@@ -246,9 +356,12 @@ class BuscadorNormativa:
       NORMALIZAR=1          agrega sinónimos estudiantiles y cifras en palabras a la consulta (D-01)
       K_NORMATIVA=6         fragmentos que se entregan al LLM
       CHROMA_RUTA=...       índice alternativo (p. ej. CHROMADB2/chroma_e5_v2, con el D-12 corregido)
+      DIVERSIFICAR=1        (21/11) no repetir un mismo artículo en los k lugares: los trozos de un artículo se unen
+                            en uno solo y el lugar libre pasa al siguiente artículo distinto
     """
 
-    def __init__(self, ruta_chroma=None, modelo=MODELO_EMB, embedding=None, modo=None, normalizar=None, k=None):
+    def __init__(self, ruta_chroma=None, modelo=MODELO_EMB, embedding=None, modo=None, normalizar=None, k=None,
+                 diversificar=None):
         import chromadb
         ruta_chroma = Path(ruta_chroma or os.environ.get("CHROMA_RUTA") or CHROMA_POR_DEFECTO)
         if not ruta_chroma.is_absolute() and not ruta_chroma.exists():
@@ -265,6 +378,8 @@ class BuscadorNormativa:
         self.modo = (modo or os.environ.get("RECUPERACION", "denso")).lower()
         self.normalizar = normalizar if normalizar is not None else os.environ.get("NORMALIZAR", "0") == "1"
         self.k = int(k or os.environ.get("K_NORMATIVA", K_NORMATIVA))
+        self.diversificar = (diversificar if diversificar is not None
+                             else os.environ.get("DIVERSIFICAR", "0") == "1")
         self._bm25 = None
 
     def _corpus(self):
@@ -276,6 +391,11 @@ class BuscadorNormativa:
 
     def buscar_con_meta(self, pregunta, k=None):
         k = k or self.k
+        if self.diversificar:
+            return diversificar(self._candidatos(pregunta, 3 * k), k)
+        return self._candidatos(pregunta, k)
+
+    def _candidatos(self, pregunta, k):
         consulta = normalizar_consulta(pregunta) if self.normalizar else pregunta
         n = k if self.modo != "hibrido" else max(4 * k, 20)
         r = self.col.query(query_embeddings=[self.embedding(consulta)], n_results=n)
@@ -357,7 +477,9 @@ def crear_llm(modelo=None):
 
 
 class Agente:
-    def __init__(self, db=DB_POR_DEFECTO, chroma=CHROMA_POR_DEFECTO, llm=None, buscador=None, registrar=True):
+    # chroma=None: se usa CHROMA_RUTA del .env y, si no está, CHROMA_POR_DEFECTO. Hasta el 21/11 el valor por defecto era
+    # CHROMA_POR_DEFECTO y anulaba CHROMA_RUTA: el agente (app y corridas v2 a v4) usó siempre el índice chroma_e5 (D-14).
+    def __init__(self, db=DB_POR_DEFECTO, chroma=None, llm=None, buscador=None, registrar=True):
         self.a = Academico(db)
         self.buscador = buscador or BuscadorNormativa(chroma)
         self.llm = llm or crear_llm()
@@ -370,6 +492,7 @@ class Agente:
         # Orquestación LCEL: router -> recuperación -> prompt -> LLM -> texto
         self.recuperacion = RunnableLambda(self._enrutar) | RunnableLambda(self._recuperar)
         self.generacion = PROMPT | self.llm | StrOutputParser()
+        self.reescritura = PROMPT_REESCRIBIR | self.llm | StrOutputParser()
         self.cadena = self.recuperacion | RunnableLambda(self._preparar) | self.generacion
         # La app comparte una sola instancia entre sesiones (un hilo por sesión): la conexión SQLite se usa
         # de a un hilo a la vez y el estado de cada consulta viaja en la cadena, no en el objeto (D-02, P9).
@@ -446,6 +569,12 @@ class Agente:
                     f = {"avance": self.a.avance_curricular, "en_curso": self.a.cursos_en_curso,
                          "disponibles": self.a.cursos_disponibles,
                          "pendientes": lambda e: self.a.cursos_pendientes(e, x.get("ciclo")),
+                         "extremos": self.a.notas_extremas, "tipo_en_curso": self.a.tipo_cursos_en_curso,
+                         "bloqueos": self.a.bloqueos_si_desaprueba,
+                         "notas_valor": lambda e: self.a.cursos_con_nota(e, x.get("nota")) if x.get("nota") is not None
+                         else self.a.notas_extremas(e),
+                         "meta_promedio": lambda e: self.a.meta_promedio(e, x.get("objetivo") or 15) if x.get("objetivo")
+                         else self.a.promedio_ponderado(e),
                          "notas_periodo": lambda e: self.a.notas_periodo(e, x.get("periodo")),
                          "promedio": lambda e: self.a.promedio_ponderado(e, x.get("periodo")),
                          "desaprobados": self.a.desaprobados, "estado": self.a.estado_matricula,
@@ -464,17 +593,30 @@ class Agente:
         return {"pregunta": x["pregunta"], "contexto": "\n\n".join(x["contextos"]) or "(sin contexto)"}
 
     # -- interfaz pública
-    def responder(self, estudiante_id, pregunta):
+    def responder(self, estudiante_id, pregunta, historial=None):
+        """historial: preguntas anteriores del estudiante en la sesión (la app las pasa; el testbed no)."""
         t0 = time.perf_counter()
+        directa = mensaje_directo(pregunta)
+        if directa:
+            return {"respuesta": directa, "contextos": [], "ruta": "saludo", "intenciones": [], "router": "directo",
+                    "latencia_ms": round((time.perf_counter() - t0) * 1000, 1)}
+        original = pregunta
+        if historial and es_seguimiento(pregunta):
+            try:
+                previas = "\n".join(f"- {h}" for h in historial[-3:])
+                pregunta = self.reescritura.invoke({"previas": previas, "pregunta": pregunta}).strip() or pregunta
+            except Exception:  # noqa: BLE001  si falla, se responde la pregunta tal cual
+                pregunta = original
         with self._lock:  # recuperación (SQLite y ChromaDB) de una consulta a la vez
             x = self.recuperacion.invoke({"estudiante_id": estudiante_id, "pregunta": pregunta})
         respuesta = self.generacion.invoke(self._preparar(x))  # el LLM sí atiende consultas en paralelo
         latencia = (time.perf_counter() - t0) * 1000
         if self.registrar:  # RF-12
             with self._lock:
-                self._registrar(x, estudiante_id, pregunta, respuesta, latencia)
+                self._registrar(x, estudiante_id, original, respuesta, latencia)  # lo que escribió
         return {"respuesta": respuesta.strip(), "contextos": x["contextos"], "ruta": x["ruta"],
-                "intenciones": x["intenciones"], "router": x["router"], "latencia_ms": round(latencia, 1)}
+                "intenciones": x["intenciones"], "router": x["router"], "latencia_ms": round(latencia, 1),
+                "pregunta_procesada": pregunta if pregunta != original else None}
 
     def _registrar(self, x, estudiante_id, pregunta, respuesta, latencia):
         self.a.con.execute(

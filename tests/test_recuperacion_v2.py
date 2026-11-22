@@ -119,3 +119,46 @@ def test_preguntas_coloquiales_21_11():
     p = a.cursos_pendientes("EST0030")
     assert p["datos"]["cursos"] and not set(p["datos"]["cursos"]) & a._aprobados("EST0030")
     assert "2023-I" in a.promedio_ponderado("EST0030", "2023-I")["texto"]
+
+
+def test_d14_el_agente_respeta_chroma_ruta(monkeypatch, tmp_path):
+    # D-14: el Agente pasaba CHROMA_POR_DEFECTO explícito y BuscadorNormativa ignoraba CHROMA_RUTA
+    usadas = []
+
+    class Espia:
+        def __init__(self, ruta=None, *a, **k):
+            usadas.append(ruta)
+
+    monkeypatch.setattr(agente, "BuscadorNormativa", Espia)
+    from langchain_core.language_models.fake_chat_models import FakeListChatModel
+    agente.Agente(llm=FakeListChatModel(responses=["x"]), registrar=False)
+    assert usadas == [None]  # None → BuscadorNormativa lee CHROMA_RUTA
+
+
+def test_v5_consultas_agregadas(monkeypatch):
+    import consultas
+    monkeypatch.setenv("EXTRAS_V5", "1")
+    a = consultas.Academico()
+    r = lambda q: agente.router_reglas(q, a)  # noqa: E731
+    assert r("cual fue mi mejor nota historica?")["intenciones"] == ["extremos"]
+    assert r("que cursos tengo con nota 12?")["intenciones"] == ["notas_valor"] and r("con nota 12")["nota"] == 12
+    q = r("cuantos puntos necesito para tener promedio 15 este semestre?")
+    assert q["intenciones"] == ["meta_promedio"] and q["objetivo"] == 15
+    assert r("que cursos de los que estoy llevando son obligatorios?")["intenciones"] == ["tipo_en_curso"]
+    assert r("que cursos no puedo llevar si jalo algun curso?")["intenciones"] == ["bloqueos"]
+    assert r("¿Cuál es la nota mínima para aprobar un curso?")["intenciones"] == []  # norma, no «peor nota»
+    assert "cursos se desaprueban" in agente.normalizar_consulta("todos los cuross se despruabn con 12?")
+    assert agente.corregir_erratas("todos los cuross se despruabn") == "todos los cursos se desaprueban"
+    assert agente.corregir_erratas("estoy matriculado") == "estoy matriculado"  # una forma válida no se toca
+    ext = a.notas_extremas("EST0026")
+    assert ext["datos"] == {"max": 17, "min": 6}
+    assert len(a.cursos_con_nota("EST0039", 12)["datos"]["cursos"]) == 18
+    assert a.meta_promedio("EST0033", 15)["datos"] == {"creditos": 14.0, "suma_necesaria": 210.0}
+
+
+def test_v5_apagado_reproduce_la_v4(monkeypatch):
+    import consultas
+    monkeypatch.setenv("EXTRAS_V5", "0")
+    a = consultas.Academico()
+    assert agente.router_reglas("cual fue mi mejor nota historica?", a)["intenciones"] == ["resumen"]
+    assert agente.normalizar_consulta("todos los cuross se despruabn con 12?") == "todos los cuross se despruabn con 12?"

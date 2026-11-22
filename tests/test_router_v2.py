@@ -76,3 +76,37 @@ def test_union_discrepancia_sin_dato_concreto_decide_el_llm(monkeypatch):
     x = ag._enrutar({"pregunta": "¿qué piden para cambiarme de programa de estudios dentro de mi facultad?",
                      "estudiante_id": "EST0030"})
     assert x["ruta"] == "normativa" and x["intenciones"] == [] and x["router"].startswith("union (llm decide")
+
+
+def test_saludos_y_ayuda_sin_llm():
+    assert agente.mensaje_directo("hola!") == agente.RESPUESTA_SALUDO
+    assert agente.mensaje_directo("muchas gracias") == agente.RESPUESTA_GRACIAS
+    assert agente.mensaje_directo("¿qué puedes hacer?") == agente.RESPUESTA_AYUDA
+    assert agente.mensaje_directo("hola, ¿cuál es mi promedio?") is None  # es una consulta
+    ag = agente.Agente(llm=FakeListChatModel(responses=["no debería usarse"]), buscador=SinNormativa(), registrar=False)
+    r = ag.responder("EST0030", "buenas tardes")
+    assert r["ruta"] == "saludo" and r["contextos"] == []
+
+
+def test_memoria_reescribe_solo_seguimientos(monkeypatch):
+    monkeypatch.setenv("ROUTER_MODO", "reglas")
+    ag = agente.Agente(llm=FakeListChatModel(responses=["¿cuáles son mis notas del 2023-I?", "Respuesta."]),
+                       buscador=SinNormativa(), registrar=False)
+    r = ag.responder("EST0030", "¿y en 2023-I?", historial=["¿cuáles son mis notas del semestre pasado?"])
+    assert r["pregunta_procesada"] == "¿cuáles son mis notas del 2023-I?" and r["intenciones"] == ["notas_periodo"]
+    assert any("2023-I" in c for c in r["contextos"])
+    assert not agente.es_seguimiento("¿cuál es mi promedio?")
+    ag2 = agente.Agente(llm=FakeListChatModel(responses=["Respuesta."]), buscador=SinNormativa(), registrar=False)
+    assert ag2.responder("EST0030", "¿cuál es mi promedio?", historial=["hola"])["pregunta_procesada"] is None
+
+
+def test_diversificar_une_trozos_del_mismo_articulo():
+    c = [("[RG | Art. 125] a", {"documento": "RG", "articulo": "125"}),
+         ("[RG | Art. 125] b", {"documento": "RG", "articulo": "125"}),
+         ("[Ley | Art. 45] c", {"documento": "Ley", "articulo": "45"}),
+         ("[RG | Art. 292] d", {"documento": "RG", "articulo": "292"}),
+         ("[Ley | Art. 45] e", {"documento": "Ley", "articulo": "45"}),
+         ("[RG | Art. 1] f", {"documento": "RG", "articulo": "1"})]
+    r = agente.diversificar(c, 3)
+    assert [m["articulo"] for _, m in r] == ["125", "45", "292"]
+    assert r[0][0] == "[RG | Art. 125] a\n[…] b" and r[1][0].endswith("[…] e")
